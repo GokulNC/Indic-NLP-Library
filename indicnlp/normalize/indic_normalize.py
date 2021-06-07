@@ -862,32 +862,33 @@ class UrduNormalizer(NormalizerI):
     https://docs.urduhack.com/en/stable/_modules/urduhack/normalization/character.html#normalize
     '''
 
-    def __init__(self, lang, remove_nuktas=True):
+    def __init__(self, lang, remove_diacritics=True):
         self.lang = lang
-        self.remove_nuktas = remove_nuktas
-    
-        from urduhack.normalization import (
-            remove_diacritics,
-            normalize_characters,
-            normalize_combine_characters
-        ) # TODO: Use only required normalizers
-        from urduhack.preprocessing import (
-            normalize_whitespace,
-            digits_space,
-            all_punctuations_space,
-            english_characters_space
-        )
+        self.remove_diacritic_marks = remove_diacritics
 
+        from importlib import import_module
+        self.preprocessing = import_module('urduhack.preprocessing')
+        self.normalization = import_module('urduhack.normalization.character')
+        self.arabic_normalizer = str.maketrans({
+            '٫': '.', # Arabic decimal point
+            '٬': ',', # Arabic thousands separator
+            '؍': '/', # Arabic date separator
+            'ࣇ': 'لؕ', # https://wikipedia.org/wiki/%E0%A3%87
+            'ﷲ': 'اللہ',
+        })
+    
     def normalize(self, text):
+        # TODO: Use only required normalizers
         text = self._normalize_punctuations(text)
-        text = UrduNormalizer.normalize_whitespace(text)
-        if self.remove_nuktas:
-            text = UrduNormalizer.remove_diacritics(text)
-        text = UrduNormalizer.normalize_characters(text)
-        text = UrduNormalizer.normalize_combine_characters(text)
-        text = UrduNormalizer.digits_space(text)
-        text = UrduNormalizer.all_punctuations_space(text)
-        text = UrduNormalizer.english_characters_space(text)
+        text = self.preprocessing.normalize_whitespace(text)
+        if self.remove_diacritic_marks:
+            text = self.normalization.remove_diacritics(text)
+        text = self.normalization.normalize_characters(text)
+        text = text.translate(self.arabic_normalizer)
+        text = self.normalization.normalize_combine_characters(text)
+        text = self.normalization.punctuations_space(text)
+        # text = self.preprocessing.digits_space(text)
+        text = self.preprocessing.english_characters_space(text)
         return text
 
 
@@ -906,7 +907,7 @@ class IndicNormalizerFactory(object):
             |remove_nuktas: boolean, should the normalizer remove nukta characters 
         """
         normalizer=None
-        if language in ['hi','mr','sa','kK','ne','sd']:
+        if language in ['hi','mr','sa','kK','ne']:
             normalizer=DevanagariNormalizer(lang=language, **kwargs)
         elif language in ['ur']:
             normalizer = UrduNormalizer(lang=language, **kwargs)
@@ -928,6 +929,8 @@ class IndicNormalizerFactory(object):
             normalizer=TamilNormalizer(lang=language, **kwargs)
         elif language in ['te']:
             normalizer=TeluguNormalizer(lang=language, **kwargs)
+        elif language in ['en']:
+            normalizer = EnglishNormalizer(lang=language, **kwargs)
         else:    
             normalizer=BaseNormalizer(lang=language, **kwargs)
 
@@ -937,7 +940,7 @@ class IndicNormalizerFactory(object):
         """
         Is the language supported?
         """
-        if language in ['hi','mr','sa','kK','ne','sd',
+        if language in ['hi','mr','sa','kK','ne',
                         'ur',
                         'pa',
                         'gu',
