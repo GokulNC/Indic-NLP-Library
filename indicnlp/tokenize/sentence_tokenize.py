@@ -204,13 +204,32 @@ def sentence_split(text,lang,delim_pat='auto'): ## New signature
     cand_sentences=[]
     begin=0
     text = text.strip()
+
+    double_quotes_indices = []
+    for i, c in enumerate(text):
+        if c == '"':
+            double_quotes_indices.append(i)
+    
+    check_for_double_quotes = False # Double-quotes aware sentence splitting
+    if double_quotes_indices:
+        if len(double_quotes_indices) % 2 == 0:
+            check_for_double_quotes = True
+        # else:
+        #     print("WARNING: Unbalanced double quotes", file=sys.stderr)
+
     for mo in delim_pat.finditer(text):
         p1=mo.start()
-        p2=mo.end()
+        # p2=mo.end()
         
-        ## NEW
-        if p1>0 and text[p1-1].isnumeric():
+        ## Check if it's a numeric decimal point
+        if text[p1] == '.' and (p1>0 and text[p1-1].isnumeric()) and (p1+1 < len(text) and text[p1+1].isnumeric()):
             continue
+        
+        ## Leave sentences inside double quotes as it is
+        if check_for_double_quotes:
+            is_quotes_open = sum([1 for i in double_quotes_indices if i < p1]) % 2
+            if is_quotes_open:
+                continue
 
         end=p1+1
         s= text[begin:end].strip()
@@ -219,7 +238,7 @@ def sentence_split(text,lang,delim_pat='auto'): ## New signature
         begin=p1+1
 
     s= text[begin:].strip()
-    if len(s)>0:
+    if len(s)>0: # Remaining chunk as new sentence
         cand_sentences.append(s)
 
     if not delim_pat.search('.'):
