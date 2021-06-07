@@ -892,6 +892,50 @@ class UrduNormalizer(NormalizerI):
         return text
 
 
+class NormalityEnglishNormalizer(NormalizerI):
+    '''Uses Normality library.
+    https://github.com/pudo/normality/blob/2fe711a0264e6ed4028b7f927eb641ffed014db0/normality/__init__.py#L35
+    '''
+
+    def __init__(self, lang, lowercase=False, ascii_only=True, **kwargs):
+        self.lang = lang
+        self.lowercase = lowercase
+        self.ascii = ascii_only
+        self.kwargs = kwargs
+
+        import normality
+        self._normalize = normality.normalize
+    
+    def normalize(self, text):
+        return self._normalize(text, lowercase=self.lowercase, ascii=self.ascii, **self.kwargs)
+
+
+class EnglishNormalizer(NormalizerI):
+    '''Uses Clean-Text Library
+    https://github.com/jfilter/clean-text/blob/90946c2cc8650929fe6487b70236b39348085fc8/cleantext/clean.py#L199
+    '''
+
+    def __init__(self, lang, lowercase=False, ascii_only=True, fix_unicode=False, strip_lines=False, **kwargs):
+        self.lang = lang
+        self.lowercase = lowercase
+        self.ascii = ascii_only
+        self.fix_unicode = fix_unicode
+        self.strip_lines = strip_lines
+        self.kwargs = kwargs
+
+        import cleantext
+        # Patch for performance
+        from unidecode import unidecode_expect_ascii
+        cleantext.unidecode = unidecode_expect_ascii
+
+        self._normalize = cleantext.clean
+    
+    def normalize(self, text):
+        return self._normalize(text, lower=self.lowercase, to_ascii=self.ascii, fix_unicode=self.fix_unicode,
+                     strip_lines=self.strip_lines, **self.kwargs)
+
+
+
 class IndicNormalizerFactory(object):
     """
     Factory class to create language specific normalizers. 
@@ -949,7 +993,8 @@ class IndicNormalizerFactory(object):
                         'ml',
                         'kn',
                         'ta',
-                        'te']:
+                        'te',
+                        'en']:
             return True
         else:
             return False
