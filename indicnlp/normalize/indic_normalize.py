@@ -880,7 +880,7 @@ class UrduNormalizer(NormalizerI):
     def normalize(self, text):
         # TODO: Use only required normalizers
         text = self._normalize_punctuations(text)
-        text = self.preprocessing.normalize_whitespace(text)
+        # text = self.preprocessing.normalize_whitespace(text)
         if self.remove_diacritic_marks:
             text = self.normalization.remove_diacritics(text)
         text = self.normalization.normalize_characters(text)
@@ -891,6 +891,70 @@ class UrduNormalizer(NormalizerI):
         text = self.preprocessing.english_characters_space(text)
         return text
 
+class SindhiNormalizer(UrduNormalizer):
+    def __init__(self, lang, remove_diacritics=True):
+        super.__init__(self, lang, remove_diacritics)
+
+        self.urdu_to_sindhi = str.maketrans({
+            # 'ی': 'ي',
+            # 'ے': 'ی',
+            'ہ': 'ه',
+            'ٹ': 'ٽ',
+            'ڈ': 'ڊ',
+            'ڑ': 'ڙ',
+            # Below are ambiguous, uncomment for extreme cases
+            # 'ٹھ': 'ٺ',
+            # 'ڈھ': 'ڍ',
+            # 'ڑھ': 'ڙه',
+            # 'تھ': 'ٿ',
+            # 'دھ': 'ڌ',
+            # 'پھ': 'ڦ',
+            # 'بھ': 'ڀ',
+        })
+    
+    def normalize(self, text):
+        text = super().normalize(text)
+        return text.translate(self.urdu_to_sindhi)
+
+
+class ArabicNormalizer(NormalizerI):
+    '''
+    Uses PyArabic Library:
+    https://github.com/linuxscout/pyarabic/blob/master/doc/features.md
+    '''
+
+    def __init__(self, lang, remove_diacritics=True):
+        self.lang = lang
+        self.remove_diacritic_marks = remove_diacritics
+
+        from importlib import import_module
+        self.normalizer = import_module('pyarabic.araby')
+        self.araby_trans = import_module('pyarabic.trans')
+    
+    def normalize(self, text):
+        text = self._normalize_punctuations(text)
+        if self.remove_diacritic_marks:
+            # text = self.normalizer.strip_harakat(text)
+            # text = self.normalizer.strip_tashkeel(text)
+            text = self.normalizer.strip_diacritics(text)
+        text = self.normalizer.strip_tatweel(text)
+        text = self.normalizer.normalize_ligature(text)
+        text = self.araby_trans.normalize_digits(text, source='all', out='west')
+        return text
+
+class PersianNormalizer(NormalizerI):
+    def __init__(self, lang, remove_diacritics=True):
+        self.lang = lang
+        from parsivar import Normalizer as ParsivarNormalizer
+        self.final_normalizer = ParsivarNormalizer()
+
+        from hazm import Normalizer as HazmNormalizer
+        self.normalizer = HazmNormalizer(persian_numbers=False, remove_diacritics=True, persian_style=False)
+    
+    def normalize(self, text):
+        text = self._normalize_punctuations(text)
+        text = self.normalizer.normalize(text)
+        return self.final_normalizer.normalize(text)
 
 class NormalityEnglishNormalizer(NormalizerI):
     '''Uses Normality library.
@@ -951,10 +1015,16 @@ class IndicNormalizerFactory(object):
             |remove_nuktas: boolean, should the normalizer remove nukta characters 
         """
         normalizer=None
-        if language in ['hi','mr','sa','kK','ne']:
+        if language in ['hi','mr','sa','kK','ne','sd_IN']:
             normalizer=DevanagariNormalizer(lang=language, **kwargs)
         elif language in ['ur']:
             normalizer = UrduNormalizer(lang=language, **kwargs)
+        elif language in ['sd']:
+            normalizer = SindhiNormalizer(lang=language, **kwargs)
+        elif language in ['ar']:
+            normalizer = ArabicNormalizer(lang=language, **kwargs)
+        elif language in ['fa']:
+            normalizer = PersianNormalizer(lang=language, **kwargs)
         elif language in ['pa']:
             normalizer=GurmukhiNormalizer(lang=language, **kwargs)
         elif language in ['gu']:
@@ -984,8 +1054,8 @@ class IndicNormalizerFactory(object):
         """
         Is the language supported?
         """
-        if language in ['hi','mr','sa','kK','ne',
-                        'ur',
+        if language in ['hi','mr','sa','kK','ne','sd_IN',
+                        'ur','sd','ar','fa',
                         'pa',
                         'gu',
                         'bn','as',
