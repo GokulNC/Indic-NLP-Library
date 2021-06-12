@@ -237,7 +237,7 @@ def sentence_split(text,lang,delim_pat='auto'): ## New signature
     ### Phase 1: break on sentence delimiters.
     cand_sentences=[]
     begin=0
-    text = text.strip()
+    text = text.replace('\r', '').strip()
 
     double_quotes_indices = []
     for i, c in enumerate(text):
@@ -274,6 +274,11 @@ def sentence_split(text,lang,delim_pat='auto'): ## New signature
     s= text[begin:].strip()
     if len(s)>0: # Remaining chunk as new sentence
         cand_sentences.append(s)
+    
+    cand_sentences_new = []
+    for sentence in cand_sentences:
+        cand_sentences_new.extend(sentence.split('\n'))
+    cand_sentences = cand_sentences_new
 
     if not delim_pat.search('.'):
         ## run phase 2 only if delimiter pattern contains period
