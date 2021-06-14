@@ -351,21 +351,36 @@ class DevanagariNormalizer(BaseNormalizer):
         # chandra a replacement for Marathi
         text=text.replace('\u0972','\u090f')
 
-        # decomposing Nukta based composite characters
-        text=text.replace('\u0929','\u0928'+DevanagariNormalizer.NUKTA)
-        text=text.replace('\u0931','\u0930'+DevanagariNormalizer.NUKTA)
-        text=text.replace('\u0934','\u0933'+DevanagariNormalizer.NUKTA)
-        text=text.replace('\u0958','\u0915'+DevanagariNormalizer.NUKTA)
-        text=text.replace('\u0959','\u0916'+DevanagariNormalizer.NUKTA)
-        text=text.replace('\u095A','\u0917'+DevanagariNormalizer.NUKTA)
-        text=text.replace('\u095B','\u091C'+DevanagariNormalizer.NUKTA)
-        text=text.replace('\u095C','\u0921'+DevanagariNormalizer.NUKTA)
-        text=text.replace('\u095D','\u0922'+DevanagariNormalizer.NUKTA)
-        text=text.replace('\u095E','\u092B'+DevanagariNormalizer.NUKTA)
-        text=text.replace('\u095F','\u092F'+DevanagariNormalizer.NUKTA)
-
         if self.remove_nuktas:
+
             text=text.replace(DevanagariNormalizer.NUKTA,'')
+            # normalize Nukta based composite characters
+            text=text.replace('\u0929','\u0928')
+            text=text.replace('\u0931','\u0930')
+            text=text.replace('\u0934','\u0933')
+            text=text.replace('\u0958','\u0915')
+            text=text.replace('\u0959','\u0916')
+            text=text.replace('\u095A','\u0917')
+            text=text.replace('\u095B','\u091C')
+            text=text.replace('\u095C','\u0921')
+            text=text.replace('\u095D','\u0922')
+            text=text.replace('\u095E','\u092B')
+            text=text.replace('\u095F','\u092F')
+        
+        else:
+            # recomposing Nukta based composite characters
+            # Warning: Might increase your vocab size
+            text=text.replace('\u0928'+DevanagariNormalizer.NUKTA, '\u0929')
+            text=text.replace('\u0930'+DevanagariNormalizer.NUKTA, '\u0931')
+            text=text.replace('\u0933'+DevanagariNormalizer.NUKTA, '\u0934')
+            text=text.replace('\u0915'+DevanagariNormalizer.NUKTA, '\u0958')
+            text=text.replace('\u0916'+DevanagariNormalizer.NUKTA, '\u0959')
+            text=text.replace('\u0917'+DevanagariNormalizer.NUKTA, '\u095A')
+            text=text.replace('\u091C'+DevanagariNormalizer.NUKTA, '\u095B')
+            text=text.replace('\u0921'+DevanagariNormalizer.NUKTA, '\u095C')
+            text=text.replace('\u0922'+DevanagariNormalizer.NUKTA, '\u095D')
+            text=text.replace('\u092B'+DevanagariNormalizer.NUKTA, '\u095E')
+            text=text.replace('\u092F'+DevanagariNormalizer.NUKTA, '\u095F')
 
         # replace pipe character for poorna virama 
         text=text.replace('\u007c','\u0964')
@@ -482,17 +497,24 @@ class GurmukhiNormalizer(BaseNormalizer):
 
         # common normalization for Indic scripts 
         text=super(GurmukhiNormalizer,self).normalize(text)
-
-        # decomposing Nukta based composite characters
-        text=text.replace('\u0a33','\u0a32'+GurmukhiNormalizer.NUKTA)
-        text=text.replace('\u0a36','\u0a38'+GurmukhiNormalizer.NUKTA)
-        text=text.replace('\u0a59','\u0a16'+GurmukhiNormalizer.NUKTA)
-        text=text.replace('\u0a5a','\u0a17'+GurmukhiNormalizer.NUKTA)
-        text=text.replace('\u0a5b','\u0a1c'+GurmukhiNormalizer.NUKTA)
-        text=text.replace('\u0a5e','\u0a2b'+GurmukhiNormalizer.NUKTA)
-
+        
         if self.remove_nuktas:
             text=text.replace(GurmukhiNormalizer.NUKTA,'')
+            # normalizing Nukta based composite characters
+            text=text.replace('\u0a33','\u0a32')
+            text=text.replace('\u0a36','\u0a38')
+            text=text.replace('\u0a59','\u0a16')
+            text=text.replace('\u0a5a','\u0a17')
+            text=text.replace('\u0a5b','\u0a1c')
+            text=text.replace('\u0a5e','\u0a2b')
+        else:
+            # recomposing Nukta based composite characters
+            text=text.replace('\u0a32'+GurmukhiNormalizer.NUKTA, '\u0a33')
+            text=text.replace('\u0a38'+GurmukhiNormalizer.NUKTA, '\u0a36')
+            text=text.replace('\u0a16'+GurmukhiNormalizer.NUKTA, '\u0a59')
+            text=text.replace('\u0a17'+GurmukhiNormalizer.NUKTA, '\u0a5a')
+            text=text.replace('\u0a1c'+GurmukhiNormalizer.NUKTA, '\u0a5b')
+            text=text.replace('\u0a2b'+GurmukhiNormalizer.NUKTA, '\u0a5e')
 
         # replace the poorna virama codes specific to script 
         # with generic Indic script codes
@@ -580,12 +602,15 @@ class OriyaNormalizer(BaseNormalizer):
         for k,v in OriyaNormalizer.VOWEL_NORM_MAPS.items():
             text=text.replace(k,v)
 
-        # decomposing Nukta based composite characters
-        text=text.replace('\u0b5c','\u0b21'+OriyaNormalizer.NUKTA)
-        text=text.replace('\u0b5d','\u0b22'+OriyaNormalizer.NUKTA)
-
         if self.remove_nuktas:
             text=text.replace(OriyaNormalizer.NUKTA,'')
+            # normalizing Nukta based composite characters
+            text=text.replace('\u0b5c','\u0b21')
+            text=text.replace('\u0b5d','\u0b22')
+        else:
+            # recomposing Nukta based composite characters
+            text=text.replace('\u0b21'+OriyaNormalizer.NUKTA, '\u0b5c')
+            text=text.replace('\u0b22'+OriyaNormalizer.NUKTA, '\u0b5d')
 
         # replace the poorna virama codes specific to script 
         # with generic Indic script codes
@@ -646,13 +671,17 @@ class BengaliNormalizer(BaseNormalizer):
         # common normalization for Indic scripts 
         text=super(BengaliNormalizer,self).normalize(text)
 
-        # decomposing Nukta based composite characters
-        text=text.replace('\u09dc','\u09a1'+BengaliNormalizer.NUKTA)
-        text=text.replace('\u09dd','\u09a2'+BengaliNormalizer.NUKTA)
-        text=text.replace('\u09df','\u09af'+BengaliNormalizer.NUKTA)
-
         if self.remove_nuktas:
             text=text.replace(BengaliNormalizer.NUKTA,'')
+            # normalizing Nukta based composite characters
+            text=text.replace('\u09dc','\u09a1')
+            text=text.replace('\u09dd','\u09a2')
+            text=text.replace('\u09df','\u09af')
+        else:
+            # recomposing Nukta based composite characters
+            text=text.replace('\u09a1'+BengaliNormalizer.NUKTA, '\u09dc')
+            text=text.replace('\u09a2'+BengaliNormalizer.NUKTA, '\u09dd')
+            text=text.replace('\u09af'+BengaliNormalizer.NUKTA, '\u09df')
 
         if self.do_remap_assamese_chars and self.lang=='as':
             text=text.replace('\u09f0','\u09b0')  #  'ra' character
