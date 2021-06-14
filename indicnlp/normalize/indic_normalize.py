@@ -620,14 +620,17 @@ class OriyaNormalizer(BaseNormalizer):
         # replace pipe character for poorna virama 
         text=text.replace('\u0b7c','\u0964')
 
+        # # replace va with ba 
+        # # NOTE: documentation (chapter on Indic scripts) and codepoint chart seem contradictory 
+        # # (this applied to wa to ba rule also above)
+        # text=text.replace('\u0b35','\u0b2c')
+
+        # replace va with wa 
+        text=text.replace('\u0b35','\u0b71')
+
         # replace wa with ba 
         if self.do_remap_wa:
             text=text.replace('\u0b71','\u0b2c')
-
-        # replace va with ba 
-        # NOTE: documentation (chapter on Indic scripts) and codepoint chart seem contradictory 
-        # (this applied to wa to ba rule also above)
-        text=text.replace('\u0b35','\u0b2c')
 
         # AI dependent vowel sign 
         text=text.replace('\u0b47\u0b56','\u0b58')
