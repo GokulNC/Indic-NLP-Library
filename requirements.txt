@@ -3,4 +3,5 @@ sphinx_rtd_theme
 morfessor
 pandas
 numpy
+unidecode
 Urduhack

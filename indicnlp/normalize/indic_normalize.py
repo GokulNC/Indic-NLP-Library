@@ -1033,7 +1033,14 @@ class EnglishNormalizer(NormalizerI):
 
         self._normalize = cleantext.clean
     
+    def capitalize(self, text):
+        return re.sub('([0-9a-zA-Z])', lambda x: x.groups()[0].upper(), text, 1)
+    
     def normalize(self, text):
+        # Remove space between word and punctuation. https://stackoverflow.com/a/18878970
+        text = re.sub(r'\s([?.!"](?:\s|$))', r'\1', text)
+        # text = text.capitalize()
+        text = self.capitalize(text)
         return self._normalize(text, lower=self.lowercase, to_ascii=self.ascii, fix_unicode=self.fix_unicode,
                      strip_lines=self.strip_lines, **self.kwargs)
 
