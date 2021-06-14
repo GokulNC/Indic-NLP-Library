@@ -902,6 +902,11 @@ class UrduNormalizer(NormalizerI):
         self.preprocessing = import_module('urduhack.preprocessing')
         self.normalization = import_module('urduhack.normalization.character')
         self.arabic_normalizer = str.maketrans({
+            ',': '،',
+            '?': '؟',
+            '؛': ';',
+            '٪': '%',
+
             '٫': '.', # Arabic decimal point
             '٬': ',', # Arabic thousands separator
             '؍': '/', # Arabic date separator
@@ -925,12 +930,12 @@ class UrduNormalizer(NormalizerI):
 
 class SindhiNormalizer(UrduNormalizer):
     def __init__(self, lang, remove_diacritics=True):
-        super.__init__(self, lang, remove_diacritics)
+        super().__init__(lang, remove_diacritics)
 
         self.urdu_to_sindhi = str.maketrans({
-            # 'ی': 'ي',
-            # 'ے': 'ی',
-            'ہ': 'ه',
+            'ی': 'ي',
+            'ے': 'ي',
+            'ہ': 'ه', # Urdu gol-he to Arabic choti-he
             'ٹ': 'ٽ',
             'ڈ': 'ڊ',
             'ڑ': 'ڙ',
@@ -946,6 +951,8 @@ class SindhiNormalizer(UrduNormalizer):
     
     def normalize(self, text):
         text = super().normalize(text)
+        text = re.sub(r"ھ\B", "ه", text) # Any intermediate do-chasmi can be converted to Arabic he
+        text = re.sub('([^ڙجگ])ھ', r'\1ه', text) # Except final {گھ, جھ, ڙھ}, all other do-chasmi endings can be converted to Arabic he
         return text.translate(self.urdu_to_sindhi)
 
 
