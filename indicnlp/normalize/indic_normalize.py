@@ -722,9 +722,13 @@ class BengaliNormalizer(BaseNormalizer):
                 text=text.replace('\u09a2'+BengaliNormalizer.NUKTA, '\u09dd')
                 text=text.replace('\u09af'+BengaliNormalizer.NUKTA, '\u09df')
 
-        if self.do_remap_assamese_chars and self.lang=='as':
-            text=text.replace('\u09f0','\u09b0')  #  'ra' character
-            text=text.replace('\u09f1','\u09ac')  #  'va' character 
+        if self.lang=='as':
+            if self.do_remap_assamese_chars:
+                # Normalize Assamese chars to Bengali
+                text=text.replace('\u09f0','\u09b0')  #  'ra' character
+                text=text.replace('\u09f1','\u09ac')  #  'va' character to 'ba'
+            else:
+                text=text.replace('\u09b0','\u09f0')  #  'ra' character
 
         # replace the poorna virama codes specific to script 
         # with generic Indic script codes
