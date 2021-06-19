@@ -929,6 +929,34 @@ class MalayalamNormalizer(BaseNormalizer):
 
         return text
 
+class SinhalaNormalizer(BaseNormalizer):
+    '''
+    Taken from: https://github.com/google/language-resources/blob/master/si/normalize_text.py
+    '''
+    
+    def __init__(self,lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending):
+        super(SinhalaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+    
+    def normalize(self, text):
+        # common normalization for Indic scripts 
+        text=super(SinhalaNormalizer,self).normalize(text)
+
+        # Vowel letters; cf. Table 13-2 in The Unicode Standard Version 9.0:
+        text = text.replace('\u0D85\u0DCF', '\u0D86')  # අා -> ආ
+        text = text.replace('\u0D85\u0DD0', '\u0D87')  # අැ -> ඇ
+        text = text.replace('\u0D85\u0DD1', '\u0D88')  # අෑ -> ඈ
+        text = text.replace('\u0D8B\u0DDF', '\u0D8C')  # උෟ -> ඌ
+        text = text.replace('\u0D8D\u0DD8', '\u0D8E')  # ඍෘ -> ඎ
+        text = text.replace('\u0D8F\u0DDF', '\u0D90')  # ඏෟ -> ඐ
+        text = text.replace('\u0D91\u0DCA', '\u0D92')  # එ් -> ඒ
+        text = text.replace('\u0D92\u0DCA', '\u0D92')  # ඒ් -> ඒ  (redundant virama)
+        text = text.replace('\u0D91\u0DD9', '\u0D93')  # එෙ -> ඓ
+        text = text.replace('\u0D94\u0DDF', '\u0D96')  # ඔෟ -> ඖ
+        # Dependent vowel signs:
+        text = text.replace('\u0DD9\u0DD9', '\u0DDB')  # කෙෙ -> කෛ
+        text = text.replace('\u0DD8\u0DD8', '\u0DF2')  # කෘෘ -> කෲ
+        return text
+
 class UrduShahmukhiNormalizer(NormalizerI):
     '''Uses UrduHack library.
     https://docs.urduhack.com/en/stable/_modules/urduhack/normalization/character.html#normalize
@@ -1129,6 +1157,8 @@ class IndicNormalizerFactory(object):
             normalizer=TamilNormalizer(lang=language, **kwargs)
         elif language in ['te']:
             normalizer=TeluguNormalizer(lang=language, **kwargs)
+        elif language in ['si']:
+            normalizer=SinhalaNormalizer(lang=language, **kwargs)
         elif language in ['en']:
             normalizer = EnglishNormalizer(lang=language, **kwargs)
         else:    
@@ -1149,6 +1179,7 @@ class IndicNormalizerFactory(object):
                         'kn',
                         'ta',
                         'te',
+                        'si',
                         'ur','pnb','sd','skr',
                         'ar','fa',
                         'en']:
