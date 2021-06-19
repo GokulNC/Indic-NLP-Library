@@ -77,12 +77,14 @@ class BaseNormalizer(NormalizerI):
 
     def __init__(self,lang,
             remove_nuktas=False,
+            decompose_nuktas=False,
             nasals_mode='do_nothing',
             do_normalize_chandras=False,
             do_normalize_vowel_ending=False):
 
         self.lang=lang
         self.remove_nuktas=remove_nuktas
+        self.decompose_nuktas = decompose_nuktas
         self.nasals_mode=nasals_mode
         self.do_normalize_chandras=do_normalize_chandras
         self.do_normalize_vowel_ending=do_normalize_vowel_ending
@@ -339,9 +341,9 @@ class DevanagariNormalizer(BaseNormalizer):
 
     NUKTA='\u093C' 
 
-    def __init__(self,lang='hi',remove_nuktas=False,nasals_mode='do_nothing',
+    def __init__(self,lang='hi',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
             do_normalize_chandras=False,do_normalize_vowel_ending=False):
-        super(DevanagariNormalizer,self).__init__(lang,remove_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+        super(DevanagariNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
 
     def normalize(self,text): 
 
@@ -368,19 +370,33 @@ class DevanagariNormalizer(BaseNormalizer):
             text=text.replace('\u095F','\u092F')
         
         else:
-            # recomposing Nukta based composite characters
-            # Warning: Might increase your vocab size
-            text=text.replace('\u0928'+DevanagariNormalizer.NUKTA, '\u0929')
-            text=text.replace('\u0930'+DevanagariNormalizer.NUKTA, '\u0931')
-            text=text.replace('\u0933'+DevanagariNormalizer.NUKTA, '\u0934')
-            text=text.replace('\u0915'+DevanagariNormalizer.NUKTA, '\u0958')
-            text=text.replace('\u0916'+DevanagariNormalizer.NUKTA, '\u0959')
-            text=text.replace('\u0917'+DevanagariNormalizer.NUKTA, '\u095A')
-            text=text.replace('\u091C'+DevanagariNormalizer.NUKTA, '\u095B')
-            text=text.replace('\u0921'+DevanagariNormalizer.NUKTA, '\u095C')
-            text=text.replace('\u0922'+DevanagariNormalizer.NUKTA, '\u095D')
-            text=text.replace('\u092B'+DevanagariNormalizer.NUKTA, '\u095E')
-            text=text.replace('\u092F'+DevanagariNormalizer.NUKTA, '\u095F')
+            if self.decompose_nuktas:
+                # decomposing Nukta based composite characters
+                text=text.replace('\u0929','\u0928'+DevanagariNormalizer.NUKTA)
+                text=text.replace('\u0931','\u0930'+DevanagariNormalizer.NUKTA)
+                text=text.replace('\u0934','\u0933'+DevanagariNormalizer.NUKTA)
+                text=text.replace('\u0958','\u0915'+DevanagariNormalizer.NUKTA)
+                text=text.replace('\u0959','\u0916'+DevanagariNormalizer.NUKTA)
+                text=text.replace('\u095A','\u0917'+DevanagariNormalizer.NUKTA)
+                text=text.replace('\u095B','\u091C'+DevanagariNormalizer.NUKTA)
+                text=text.replace('\u095C','\u0921'+DevanagariNormalizer.NUKTA)
+                text=text.replace('\u095D','\u0922'+DevanagariNormalizer.NUKTA)
+                text=text.replace('\u095E','\u092B'+DevanagariNormalizer.NUKTA)
+                text=text.replace('\u095F','\u092F'+DevanagariNormalizer.NUKTA)
+            else:
+                # recomposing Nukta based composite characters
+                # Warning: Might increase your vocab size
+                text=text.replace('\u0928'+DevanagariNormalizer.NUKTA, '\u0929')
+                text=text.replace('\u0930'+DevanagariNormalizer.NUKTA, '\u0931')
+                text=text.replace('\u0933'+DevanagariNormalizer.NUKTA, '\u0934')
+                text=text.replace('\u0915'+DevanagariNormalizer.NUKTA, '\u0958')
+                text=text.replace('\u0916'+DevanagariNormalizer.NUKTA, '\u0959')
+                text=text.replace('\u0917'+DevanagariNormalizer.NUKTA, '\u095A')
+                text=text.replace('\u091C'+DevanagariNormalizer.NUKTA, '\u095B')
+                text=text.replace('\u0921'+DevanagariNormalizer.NUKTA, '\u095C')
+                text=text.replace('\u0922'+DevanagariNormalizer.NUKTA, '\u095D')
+                text=text.replace('\u092B'+DevanagariNormalizer.NUKTA, '\u095E')
+                text=text.replace('\u092F'+DevanagariNormalizer.NUKTA, '\u095F')
 
         # replace pipe character for poorna virama 
         text=text.replace('\u007c','\u0964')
@@ -443,12 +459,12 @@ class GurmukhiNormalizer(BaseNormalizer):
         '\u0a05\u0a4c': '\u0a14',            
     }
 
-    def __init__(self,lang='pa',remove_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
+    def __init__(self,lang='pa',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
                 do_normalize_vowel_ending=False,
                 do_canonicalize_addak=False, 
                 do_canonicalize_tippi=False, 
                 do_replace_vowel_bases=False):
-        super(GurmukhiNormalizer,self).__init__(lang,remove_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+        super(GurmukhiNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
         self.do_canonicalize_addak=do_canonicalize_addak
         self.do_canonicalize_tippi=do_canonicalize_tippi
         self.do_replace_vowel_bases=do_replace_vowel_bases
@@ -508,13 +524,22 @@ class GurmukhiNormalizer(BaseNormalizer):
             text=text.replace('\u0a5b','\u0a1c')
             text=text.replace('\u0a5e','\u0a2b')
         else:
-            # recomposing Nukta based composite characters
-            text=text.replace('\u0a32'+GurmukhiNormalizer.NUKTA, '\u0a33')
-            text=text.replace('\u0a38'+GurmukhiNormalizer.NUKTA, '\u0a36')
-            text=text.replace('\u0a16'+GurmukhiNormalizer.NUKTA, '\u0a59')
-            text=text.replace('\u0a17'+GurmukhiNormalizer.NUKTA, '\u0a5a')
-            text=text.replace('\u0a1c'+GurmukhiNormalizer.NUKTA, '\u0a5b')
-            text=text.replace('\u0a2b'+GurmukhiNormalizer.NUKTA, '\u0a5e')
+            if self.decompose_nuktas:
+                # decomposing Nukta based composite characters
+                text=text.replace('\u0a33','\u0a32'+GurmukhiNormalizer.NUKTA)
+                text=text.replace('\u0a36','\u0a38'+GurmukhiNormalizer.NUKTA)
+                text=text.replace('\u0a59','\u0a16'+GurmukhiNormalizer.NUKTA)
+                text=text.replace('\u0a5a','\u0a17'+GurmukhiNormalizer.NUKTA)
+                text=text.replace('\u0a5b','\u0a1c'+GurmukhiNormalizer.NUKTA)
+                text=text.replace('\u0a5e','\u0a2b'+GurmukhiNormalizer.NUKTA)
+            else:
+                # recomposing Nukta based composite characters
+                text=text.replace('\u0a32'+GurmukhiNormalizer.NUKTA, '\u0a33')
+                text=text.replace('\u0a38'+GurmukhiNormalizer.NUKTA, '\u0a36')
+                text=text.replace('\u0a16'+GurmukhiNormalizer.NUKTA, '\u0a59')
+                text=text.replace('\u0a17'+GurmukhiNormalizer.NUKTA, '\u0a5a')
+                text=text.replace('\u0a1c'+GurmukhiNormalizer.NUKTA, '\u0a5b')
+                text=text.replace('\u0a2b'+GurmukhiNormalizer.NUKTA, '\u0a5e')
 
         # replace the poorna virama codes specific to script 
         # with generic Indic script codes
@@ -540,9 +565,9 @@ class GujaratiNormalizer(BaseNormalizer):
 
     NUKTA='\u0ABC' 
 
-    def __init__(self,lang='gu',remove_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
+    def __init__(self,lang='gu',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
                     do_normalize_vowel_ending=False):
-        super(GujaratiNormalizer,self).__init__(lang,remove_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+        super(GujaratiNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
 
     def normalize(self,text): 
 
@@ -587,10 +612,10 @@ class OriyaNormalizer(BaseNormalizer):
     }
 
 
-    def __init__(self,lang='or',remove_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
+    def __init__(self,lang='or',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
                 do_normalize_vowel_ending=False,
                 do_remap_wa=False):
-        super(OriyaNormalizer,self).__init__(lang,remove_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+        super(OriyaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
         self.do_remap_wa=do_remap_wa
 
     def normalize(self,text): 
@@ -608,9 +633,14 @@ class OriyaNormalizer(BaseNormalizer):
             text=text.replace('\u0b5c','\u0b21')
             text=text.replace('\u0b5d','\u0b22')
         else:
-            # recomposing Nukta based composite characters
-            text=text.replace('\u0b21'+OriyaNormalizer.NUKTA, '\u0b5c')
-            text=text.replace('\u0b22'+OriyaNormalizer.NUKTA, '\u0b5d')
+            if self.decompose_nuktas:
+                # decomposing Nukta based composite characters
+                text=text.replace('\u0b5c','\u0b21'+OriyaNormalizer.NUKTA)
+                text=text.replace('\u0b5d','\u0b22'+OriyaNormalizer.NUKTA)
+            else:
+                # recomposing Nukta based composite characters
+                text=text.replace('\u0b21'+OriyaNormalizer.NUKTA, '\u0b5c')
+                text=text.replace('\u0b22'+OriyaNormalizer.NUKTA, '\u0b5d')
 
         # replace the poorna virama codes specific to script 
         # with generic Indic script codes
@@ -663,10 +693,10 @@ class BengaliNormalizer(BaseNormalizer):
 
     NUKTA='\u09BC' 
 
-    def __init__(self,lang='bn',remove_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
+    def __init__(self,lang='bn',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
                     do_normalize_vowel_ending=False,
                     do_remap_assamese_chars=False):
-        super(BengaliNormalizer,self).__init__(lang,remove_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+        super(BengaliNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
         self.do_remap_assamese_chars=do_remap_assamese_chars
 
     def normalize(self,text):
@@ -681,10 +711,16 @@ class BengaliNormalizer(BaseNormalizer):
             text=text.replace('\u09dd','\u09a2')
             text=text.replace('\u09df','\u09af')
         else:
-            # recomposing Nukta based composite characters
-            text=text.replace('\u09a1'+BengaliNormalizer.NUKTA, '\u09dc')
-            text=text.replace('\u09a2'+BengaliNormalizer.NUKTA, '\u09dd')
-            text=text.replace('\u09af'+BengaliNormalizer.NUKTA, '\u09df')
+            if self.decompose_nuktas:
+                # decomposing Nukta based composite characters
+                text=text.replace('\u09dc','\u09a1'+BengaliNormalizer.NUKTA)
+                text=text.replace('\u09dd','\u09a2'+BengaliNormalizer.NUKTA)
+                text=text.replace('\u09df','\u09af'+BengaliNormalizer.NUKTA)
+            else:
+                # recomposing Nukta based composite characters
+                text=text.replace('\u09a1'+BengaliNormalizer.NUKTA, '\u09dc')
+                text=text.replace('\u09a2'+BengaliNormalizer.NUKTA, '\u09dd')
+                text=text.replace('\u09af'+BengaliNormalizer.NUKTA, '\u09df')
 
         if self.do_remap_assamese_chars and self.lang=='as':
             text=text.replace('\u09f0','\u09b0')  #  'ra' character
@@ -719,9 +755,9 @@ class TamilNormalizer(BaseNormalizer):
     * replace colon ':' by visarga if the colon follows a charcter in this script 
     """
 
-    def __init__(self,lang='ta',remove_nuktas=False,nasals_mode='do_nothing',
+    def __init__(self,lang='ta',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
             do_normalize_chandras=False,do_normalize_vowel_ending=False):
-        super(TamilNormalizer,self).__init__(lang,remove_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+        super(TamilNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
 
     def normalize(self,text): 
 
@@ -754,9 +790,9 @@ class TeluguNormalizer(BaseNormalizer):
     * replace colon ':' by visarga if the colon follows a charcter in this script 
     """
 
-    def __init__(self,lang='te',remove_nuktas=False,nasals_mode='do_nothing',
+    def __init__(self,lang='te',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
                 do_normalize_chandras=False,do_normalize_vowel_ending=False):
-        super(TeluguNormalizer,self).__init__(lang,remove_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+        super(TeluguNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
 
     def normalize(self,text): 
 
@@ -788,9 +824,9 @@ class KannadaNormalizer(BaseNormalizer):
     * replace colon ':' by visarga if the colon follows a charcter in this script 
     """
 
-    def __init__(self,lang='kn',remove_nuktas=False,nasals_mode='do_nothing',
+    def __init__(self,lang='kn',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
             do_normalize_chandras=False,do_normalize_vowel_ending=False):
-        super(KannadaNormalizer,self).__init__(lang,remove_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+        super(KannadaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
 
 
     def normalize(self,text): 
@@ -843,10 +879,10 @@ class MalayalamNormalizer(BaseNormalizer):
     def _correct_geminated_T(self,text):
         return text.replace('\u0d31\u0d4d\u0d31','\u0d1f\u0d4d\u0d1f')
 
-    def __init__(self,lang='ml',remove_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
+    def __init__(self,lang='ml',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
                 do_normalize_vowel_ending=False,
                 do_canonicalize_chillus=False, do_correct_geminated_T=False):
-        super(MalayalamNormalizer,self).__init__(lang,remove_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+        super(MalayalamNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
         self.do_canonicalize_chillus=do_canonicalize_chillus
         self.do_correct_geminated_T=do_correct_geminated_T
 
