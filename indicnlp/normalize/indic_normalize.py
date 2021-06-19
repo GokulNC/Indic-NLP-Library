@@ -780,18 +780,18 @@ class TamilNormalizer(BaseNormalizer):
         text=text.replace('\u0bc7\u0bbe','\u0bcb')
         text=text.replace('\u0bc6\u0bd7','\u0bcc')
 
-        # correct visarge 
-        text=re.sub(r'([\u0b80-\u0bff]):','\\1\u0b83',text)
+        # # Correct Indic visarge. Does not apply to Tamil, since visarga is ஃ
+        # text=re.sub(r'([\u0b80-\u0bff]):','\\1\u0b83',text)
 
         if self.remove_nuktas:
             # In Tamil, it's equivalent to removing translingual ஃ
             text=text.replace('\u0b83\u0b9c', '\u0b9c') # ஃஜ (za)
             text=text.replace('\u0b83\u0b95', '\u0b95') # ஃக (qa)
             text=text.replace('\u0b83\u0baa', '\u0baa') # ஃப (fa)
-            # In other places, ஃ denotes a voiceless uvular fricative
+            # In other places, ஃ denotes a voiceless uvular fricative or visarga if final
 
         if self.normalize_grantha:
-            # Convert additional grantha consonants to core Tamil (Tolkāppiyam)
+            # Convert additional grantha consonants to core Tamil (Tolkāppiyam) as in Vatteluttu
             text=text.replace('ஸ்ரீ', 'திரு')
             text=text.replace('\u0b9c','\u0b9a') # ஜ -> ச
             text=text.replace('\u0bb6','\u0b9a') # ஶ -> ச
@@ -890,9 +890,14 @@ class MalayalamNormalizer(BaseNormalizer):
                     '\u0d7d': '\u0d32',
                     '\u0d7e': '\u0d33',
                     '\u0d7f': '\u0d15',
+                    # Unicode 9.0
+                    '\u0d54': '\u0d2e',
+                    '\u0d55': '\u0d2f',
+                    '\u0d56': '\u0d34',
                  }
 
     def _canonicalize_chillus(self,text):
+        # Note: This will cause confusion between chillu-based virama and half-u
         for chillu, char in MalayalamNormalizer.CHILLU_CHAR_MAP.items(): 
             text=text.replace(chillu,'{}\u0d4d'.format(char)) 
         return text
@@ -910,12 +915,17 @@ class MalayalamNormalizer(BaseNormalizer):
     def normalize(self,text): 
 
         # Change from old encoding of chillus (till Unicode 5.0) to new encoding
+        # text=text.replace('\u0d28\u0d4d\u0d31','\u0d7b\u0d4d\u0d31') # ന്റ -> ൻ്റ 
         text=text.replace('\u0d23\u0d4d\u200d','\u0d7a')
         text=text.replace('\u0d28\u0d4d\u200d','\u0d7b')
         text=text.replace('\u0d30\u0d4d\u200d','\u0d7c')
         text=text.replace('\u0d32\u0d4d\u200d','\u0d7d')
         text=text.replace('\u0d33\u0d4d\u200d','\u0d7e')
         text=text.replace('\u0d15\u0d4d\u200d','\u0d7f')
+        # Unicode 9.0 introduces 3 new chillus
+        text=text.replace('\u0d2e\u0d4d\u200d','\u0d54')
+        text=text.replace('\u0d2f\u0d4d\u200d','\u0d55')
+        text=text.replace('\u0d34\u0d4d\u200d','\u0d56')
 
         # Normalize chillus
         if self.do_canonicalize_chillus:
@@ -936,6 +946,15 @@ class MalayalamNormalizer(BaseNormalizer):
         # au forms
         text=text.replace('\u0d46\u0d57','\u0d4c')
         text=text.replace('\u0d57','\u0d4c')
+
+        # Vertical/Circular Virama (Old Orthography) to Virama
+        text=text.replace('\u0d3b','\u0d4d')
+        text=text.replace('\u0d3c','\u0d4d')
+        
+        # Dot reph to chillu r
+        text=text.replace('\u0d4e','\u0d7c')
+        # Old orthographic germination ഺ -> റ്റ
+        text=text.replace('\u0d3a','\u0d31\u0d4d\u0d31')
 
         # correct geminated T
         if self.do_correct_geminated_T:
