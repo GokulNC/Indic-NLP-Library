@@ -29,6 +29,10 @@ DELIM_PAT_DANDA=re.compile(r'[\?!\u0964\u0965]')
 ## for languages which don't have danda as delimiter
 DELIM_PAT_NO_DANDA=re.compile(r'[\.\?!\u0964\u0965]')
 
+## for PersoArabic languages
+DELIM_PAT_URDU=re.compile(r'[۔؟!\?]')
+# Note: Languages like Sindhi, Parsi, Arabic uses normal dot instead of ۔
+
 ## pattern to check for presence of danda in text 
 CONTAINS_DANDA=re.compile(r'[\u0964\u0965]')
 
@@ -229,7 +233,10 @@ def sentence_split(text,lang,delim_pat='auto'): ## New signature
                 delim_pat=DELIM_PAT_DANDA
                 #print('LANG has danda delim. TEXT_CONTAINS_DANDA: TRUE --> DELIM_PAT_DANDA')
         else:
-            delim_pat=DELIM_PAT_NO_DANDA
+            if lang in {'ur','pnb'}:
+                delim_pat=DELIM_PAT_URDU
+            else:
+                delim_pat=DELIM_PAT_NO_DANDA
             #print('LANG has no danda delim --> DELIM_PAT_NO_DANDA')
 
     ## otherwise, assume the caller set the delimiter pattern
