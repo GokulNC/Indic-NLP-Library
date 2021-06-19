@@ -760,8 +760,9 @@ class TamilNormalizer(BaseNormalizer):
     """
 
     def __init__(self,lang='ta',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
-            do_normalize_chandras=False,do_normalize_vowel_ending=False):
+            do_normalize_chandras=False,do_normalize_vowel_ending=False, normalize_grantha=False):
         super(TamilNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+        self.normalize_grantha = normalize_grantha
 
     def normalize(self,text): 
 
@@ -781,6 +782,22 @@ class TamilNormalizer(BaseNormalizer):
 
         # correct visarge 
         text=re.sub(r'([\u0b80-\u0bff]):','\\1\u0b83',text)
+
+        if self.remove_nuktas:
+            # In Tamil, it's equivalent to removing translingual ஃ
+            text=text.replace('\u0b83\u0b9c', '\u0b9c') # ஃஜ (za)
+            text=text.replace('\u0b83\u0b95', '\u0b95') # ஃக (qa)
+            text=text.replace('\u0b83\u0baa', '\u0baa') # ஃப (fa)
+            # In other places, ஃ denotes a voiceless uvular fricative
+
+        if self.normalize_grantha:
+            # Convert additional grantha consonants to core Tamil (Tolkāppiyam)
+            text=text.replace('ஸ்ரீ', 'திரு')
+            text=text.replace('\u0b9c','\u0b9a') # ஜ -> ச
+            text=text.replace('\u0bb6','\u0b9a') # ஶ -> ச
+            text=text.replace('\u0bb7','\u0b9a') # ஷ -> ச
+            text=text.replace('\u0bb8','\u0b9a') # ஸ -> ச
+            text=text.replace('\u0bb9','\u0b95') # ஹ -> க
 
         return text
 
