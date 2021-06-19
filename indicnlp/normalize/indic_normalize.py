@@ -929,7 +929,7 @@ class MalayalamNormalizer(BaseNormalizer):
 
         return text
 
-class UrduNormalizer(NormalizerI):
+class UrduShahmukhiNormalizer(NormalizerI):
     '''Uses UrduHack library.
     https://docs.urduhack.com/en/stable/_modules/urduhack/normalization/character.html#normalize
     '''
@@ -968,7 +968,7 @@ class UrduNormalizer(NormalizerI):
         text = self.preprocessing.english_characters_space(text)
         return text
 
-class SindhiNormalizer(UrduNormalizer):
+class SindhiNormalizer(UrduShahmukhiNormalizer):
     def __init__(self, lang, remove_diacritics=True):
         super().__init__(lang, remove_diacritics)
 
@@ -1103,8 +1103,8 @@ class IndicNormalizerFactory(object):
         normalizer=None
         if language in ['hi','mr','sa','kK','ne','sd_IN']:
             normalizer=DevanagariNormalizer(lang=language, **kwargs)
-        elif language in ['ur']:
-            normalizer = UrduNormalizer(lang=language, **kwargs)
+        elif language in ['ur','pnb','skr']:
+            normalizer = UrduShahmukhiNormalizer(lang=language, **kwargs)
         elif language in ['sd']:
             normalizer = SindhiNormalizer(lang=language, **kwargs)
         elif language in ['ar']:
@@ -1141,7 +1141,6 @@ class IndicNormalizerFactory(object):
         Is the language supported?
         """
         if language in ['hi','mr','sa','kK','ne','sd_IN',
-                        'ur','sd','ar','fa',
                         'pa',
                         'gu',
                         'bn','as',
@@ -1150,6 +1149,8 @@ class IndicNormalizerFactory(object):
                         'kn',
                         'ta',
                         'te',
+                        'ur','pnb','sd','skr',
+                        'ar','fa',
                         'en']:
             return True
         else:
