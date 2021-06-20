@@ -53,7 +53,7 @@ class AggressiveScriptUnifier():
         self.normalizer_map['ml']=normalizer_factory.get_normalizer('ml', nasals_mode=self.nasals_mode,
                     do_normalize_chandras=self.do_normalize_chandras, remove_nuktas=self.remove_nuktas,
                     do_normalize_vowel_ending=self.do_normalize_vowel_ending,
-                    do_canonicalize_chillus=True, do_correct_geminated_T=True)
+                    do_explicit_half_u=True,do_canonicalize_chillus=True, do_correct_geminated_T=True)
 
     def transform(self,text,lang):
         text=self.normalizer_map[lang].normalize(text)

@@ -898,18 +898,33 @@ class MalayalamNormalizer(BaseNormalizer):
 
     def _canonicalize_chillus(self,text):
         # Note: This will cause confusion between chillu-based virama and half-u
+        # Recommended to use final_virama_to_half_u_explicit() before this
         for chillu, char in MalayalamNormalizer.CHILLU_CHAR_MAP.items(): 
             text=text.replace(chillu,'{}\u0d4d'.format(char)) 
         return text
+    
+    def _final_virama_to_half_u_explicit(self,text):
+        # Chandrakala at the end of word is always half-u
+        # Make it explicit: അവന്‌ -> അവനു് 
+        return re.sub('([\u0d15-\u0d3a])\u0d4d([^\u0d00-\u0d7f]|$)', '\\1\u0d41\u0d4d\\2', text)
+    
+    def _final_virama_to_u(self,text):
+        # By doing this, you'll always implicitly interpret final-u as half-u (as per pre-modern Grammar)
+        # അവനു് --> അവനു (Assuming explicit-half-u might also have occured in middle positions)
+        text = re.sub('([\u0d15-\u0d3a])\u0d41\u0d4d', '\\1\u0d41', text)
+        # അവന്‌ -> അവനു (Only at final positions)
+        return re.sub('([\u0d15-\u0d3a])\u0d4d([^\u0d00-\u0d7f]|$)', '\\1\u0d41\\2', text)
 
     def _correct_geminated_T(self,text):
         return text.replace('\u0d31\u0d4d\u0d31','\u0d1f\u0d4d\u0d1f')
 
     def __init__(self,lang='ml',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
                 do_normalize_vowel_ending=False,
-                do_canonicalize_chillus=False, do_correct_geminated_T=False):
+                do_explicit_half_u=False,do_canonicalize_chillus=False,do_half_u_to_u=False, do_correct_geminated_T=False):
         super(MalayalamNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+        self.do_explicit_half_u=do_explicit_half_u
         self.do_canonicalize_chillus=do_canonicalize_chillus
+        self.do_half_u_to_u=do_half_u_to_u
         self.do_correct_geminated_T=do_correct_geminated_T
 
     def normalize(self,text): 
@@ -926,13 +941,25 @@ class MalayalamNormalizer(BaseNormalizer):
         text=text.replace('\u0d2e\u0d4d\u200d','\u0d54')
         text=text.replace('\u0d2f\u0d4d\u200d','\u0d55')
         text=text.replace('\u0d34\u0d4d\u200d','\u0d56')
+        # Dot reph to chillu r
+        text=text.replace('\u0d4e','\u0d7c')
+
+        # common normalization for Indic scripts 
+        text=super(MalayalamNormalizer,self).normalize(text)
+
+        # Vertical/Circular Virama (Old Orthography) to Candrakkala
+        text=text.replace('\u0d3b','\u0d4d')
+        text=text.replace('\u0d3c','\u0d4d')
+
+        if self.do_explicit_half_u:
+            text=self._final_virama_to_half_u_explicit(text)
+        
+        if self.do_half_u_to_u:
+            text=self._final_virama_to_u(text)
 
         # Normalize chillus
         if self.do_canonicalize_chillus:
             text=self._canonicalize_chillus(text)
-
-        # common normalization for Indic scripts 
-        text=super(MalayalamNormalizer,self).normalize(text)
 
         # replace the poorna virama codes specific to script 
         # with generic Indic script codes
@@ -946,13 +973,7 @@ class MalayalamNormalizer(BaseNormalizer):
         # au forms
         text=text.replace('\u0d46\u0d57','\u0d4c')
         text=text.replace('\u0d57','\u0d4c')
-
-        # Vertical/Circular Virama (Old Orthography) to Virama
-        text=text.replace('\u0d3b','\u0d4d')
-        text=text.replace('\u0d3c','\u0d4d')
         
-        # Dot reph to chillu r
-        text=text.replace('\u0d4e','\u0d7c')
         # Old orthographic germination ഺ -> റ്റ
         text=text.replace('\u0d3a','\u0d31\u0d4d\u0d31')
 
@@ -970,7 +991,7 @@ class SinhalaNormalizer(BaseNormalizer):
     Taken from: https://github.com/google/language-resources/blob/master/si/normalize_text.py
     '''
     
-    def __init__(self,lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending):
+    def __init__(self,lang,remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,do_normalize_vowel_ending=False):
         super(SinhalaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
     
     def normalize(self, text):
