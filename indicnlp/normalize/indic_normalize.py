@@ -1029,17 +1029,68 @@ class MalayalamNormalizer(BaseNormalizer):
         return text
 
 class SinhalaNormalizer(BaseNormalizer):
-    '''
-    Taken from: https://github.com/google/language-resources/blob/master/si/normalize_text.py
-    '''
+
+    MISRA_TO_SUDDA_CONSONANTS_MAP = {
+        # mahA-prAna -> alpa-prAna
+        '\u0D9B': '\u0D9A', # kh->k
+        '\u0D9D': '\u0D9C', # gh->g
+        '\u0DA1': '\u0DA0', # ch->c
+        '\u0DA3': '\u0DA2', # jh->j
+        '\u0DA8': '\u0DA7', # .th->.t
+        '\u0DAA': '\u0DA9', # .dh->.d
+        '\u0DAE': '\u0DAD', # th->t
+        '\u0DB0': '\u0DAF', # dh->d
+        '\u0DB5': '\u0DB4', # ph->p
+        '\u0DB7': '\u0DB6', # bh->b
+
+        # Sibilants
+        '\u0DC1': '\u0DC3', # ;s -> s
+        '\u0DC2': '\u0DC3', # .s -> s
+        
+        # Nasals
+        # '\u0D9E': '\u0D9F',
+        '\u0D9E': '\u0DAB', # ;n -> .n (Very approx)
+        '\u0DA4': '\u0DAB', # ~n -> .n (Very approx)
+        '\u0DB1': '\u0DAB', #  n -> .n
+
+        # Misc
+        '\u0DC6': '\u0DB4', # f->p
+        # TODO: Handle ඥ and ඦ 
+    }
+
+    MISRA_TO_SUDDA_VOWELS_MAP = {
+        # Independent
+        '\u0D93': '\u0D85\u0DBA\u0DD2', # ඓ -> අයි (ai->ayi)
+        '\u0D96': '\u0D85\u0DC0\u0DD4', # ඖ -> අවු (au->avu)
+        '\u0D8D': '\u0DBB\u0DD4', # ඍ -> රු  (ṛ->ru)
+        '\u0D8E': '\u0DBB\u0DD6', # ඎ -> රූ (ṝ->rū)
+        '\u0D8F': '\u0DBD\u0DD2', # ඏ -> ලි (ḷ->li)
+        '\u0D90': '\u0DBD\u0DD3', # ඐ -> ලී (ḹ->lī)
+
+        # Dependent
+        '\u0DDB': '\u0DBA\u0DD2', # ෛ -> යි 
+        '\u0DDE': '\u0DC0\u0DD4', # ෞ -> වු 
+        '\u0DD8': '\u0DCA\u0DBB\u0DD4', # ෘ ->  ්රු 
+        '\u0DF2': '\u0DCA\u0DBB\u0DD6', # ෲ ->  ්රූ 
+        '\u0DDF': '\u0DCA\u0DBD\u0DD2', # ෟ ->  ්ලි 
+        '\u0DF3': '\u0DCA\u0DBD\u0DD3', # ෳ ->  ්ලී 
+    }
     
-    def __init__(self,lang,remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,do_normalize_vowel_ending=False):
+    def __init__(self,lang,remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,do_normalize_vowel_ending=False,
+                misra_consonants_to_suddha=False,misra_vowels_to_suddha=False):
         super(SinhalaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+        
+        self.misra_consonants_to_suddha=misra_consonants_to_suddha
+        self.misra_vowels_to_suddha=misra_vowels_to_suddha
+        
+        self.misra_consonants_to_suddha_converter = str.maketrans(SinhalaNormalizer.MISRA_TO_SUDDA_CONSONANTS_MAP)
+        self.misra_vowels_to_suddha_converter = str.maketrans(SinhalaNormalizer.MISRA_TO_SUDDA_VOWELS_MAP)
     
     def normalize(self, text):
         # common normalization for Indic scripts 
         text=super(SinhalaNormalizer,self).normalize(text)
 
+        ## Taken from: https://github.com/google/language-resources/blob/master/si/normalize_text.py
         # Vowel letters; cf. Table 13-2 in The Unicode Standard Version 9.0:
         text = text.replace('\u0D85\u0DCF', '\u0D86')  # අා -> ආ
         text = text.replace('\u0D85\u0DD0', '\u0D87')  # අැ -> ඇ
@@ -1054,6 +1105,16 @@ class SinhalaNormalizer(BaseNormalizer):
         # Dependent vowel signs:
         text = text.replace('\u0DD9\u0DD9', '\u0DDB')  # කෙෙ -> කෛ
         text = text.replace('\u0DD8\u0DD8', '\u0DF2')  # කෘෘ -> කෲ
+
+        # Misra superset to Suddha subset
+        # Warning: Do not use for Pali
+        if self.misra_consonants_to_suddha:
+            text = text.translate(self.misra_consonants_to_suddha_converter)
+        if self.misra_vowels_to_suddha:
+            text = text.translate(self.misra_vowels_to_suddha_converter)
+
+        # correct visarge 
+        text=re.sub(r'([\u0d80-\u0dff]):','\\1\u0d83',text)
         return text
 
 class UrduShahmukhiNormalizer(NormalizerI):
