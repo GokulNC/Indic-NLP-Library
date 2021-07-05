@@ -361,13 +361,23 @@ class DevanagariNormalizer(BaseNormalizer):
             do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,do_colon_to_visarga=False):
         super(DevanagariNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,do_colon_to_visarga)
 
+    def _normalize_vowels(self,text):
+        # Two-part vowels
+        text=text.replace("\u093e\u093a","\u093b") # ा + ऺ ->  ऻ 
+        text=text.replace("\u093e\u0945","\u0949") # ा + ॅ ->  ॉ 
+        text=text.replace("\u093e\u0946","\u094a") # ा + ॆ ->  ॊ 
+        text=text.replace("\u093e\u0947","\u094b") # ा + े ->  ो 
+        text=text.replace("\u093e\u0948","\u094c") # ा + ै ->  ौ 
+
+        # # chandra a replacement for Marathi
+        # text=text.replace('\u0972','\u090f')
+        return text
+
     def normalize(self,text): 
 
         # common normalization for Indic scripts 
         text=super(DevanagariNormalizer,self).normalize(text)
-
-        # chandra a replacement for Marathi
-        text=text.replace('\u0972','\u090f')
+        text=self._normalize_vowels(text)
 
         if self.remove_nuktas:
 
@@ -401,7 +411,7 @@ class DevanagariNormalizer(BaseNormalizer):
                 text=text.replace('\u095F','\u092F'+DevanagariNormalizer.NUKTA)
             else:
                 # recomposing Nukta based composite characters
-                # Warning: Might increase your vocab size
+                # Warning: Might increase your vocab size a litte bit
                 text=text.replace('\u0928'+DevanagariNormalizer.NUKTA, '\u0929')
                 text=text.replace('\u0930'+DevanagariNormalizer.NUKTA, '\u0931')
                 text=text.replace('\u0933'+DevanagariNormalizer.NUKTA, '\u0934')
@@ -453,7 +463,7 @@ class KashmiriDevanagariNormalizer(BaseNormalizer):
     '''
     Refer for orthographic changes: https://r12a.github.io/scripts/devanagari/kashmiri#previousOrthographies
     '''
-    
+
     def __init__(self,lang='ks_IN',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
             do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,do_colon_to_visarga=False,
             do_convert_1995_to_2002_orthography=True,do_convert_vowels_with_apostrophe_to_short=False,
