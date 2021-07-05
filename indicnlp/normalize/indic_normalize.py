@@ -80,7 +80,8 @@ class BaseNormalizer(NormalizerI):
             decompose_nuktas=False,
             nasals_mode='do_nothing',
             do_normalize_chandras=False,
-            do_normalize_vowel_ending=False):
+            do_normalize_vowel_ending=False,
+            do_colon_to_visarga=False):
 
         self.lang=lang
         self.remove_nuktas=remove_nuktas
@@ -88,6 +89,7 @@ class BaseNormalizer(NormalizerI):
         self.nasals_mode=nasals_mode
         self.do_normalize_chandras=do_normalize_chandras
         self.do_normalize_vowel_ending=do_normalize_vowel_ending
+        self.do_colon_to_visarga=do_colon_to_visarga
 
         self._init_normalize_chandras()
         self._init_normalize_nasals()
@@ -342,8 +344,8 @@ class DevanagariNormalizer(BaseNormalizer):
     NUKTA='\u093C' 
 
     def __init__(self,lang='hi',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
-            do_normalize_chandras=False,do_normalize_vowel_ending=False):
-        super(DevanagariNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_colon_to_visarga=False):
+        super(DevanagariNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_colon_to_visarga)
 
     def normalize(self,text): 
 
@@ -401,8 +403,8 @@ class DevanagariNormalizer(BaseNormalizer):
         # replace pipe character for poorna virama 
         text=text.replace('\u007c','\u0964')
 
-        # correct visarga 
-        text=re.sub(r'([\u0900-\u097f]):','\\1\u0903',text)
+        if self.do_colon_to_visarga: # correct visarga 
+            text=re.sub(r'([\u0900-\u097f]):','\\1\u0903',text)
 
         return text
 
@@ -460,11 +462,11 @@ class GurmukhiNormalizer(BaseNormalizer):
     }
 
     def __init__(self,lang='pa',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
-                do_normalize_vowel_ending=False,
+                do_normalize_vowel_ending=False,do_colon_to_visarga=False,
                 do_canonicalize_addak=False, 
                 do_canonicalize_tippi=False, 
                 do_replace_vowel_bases=False):
-        super(GurmukhiNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+        super(GurmukhiNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_colon_to_visarga)
         self.do_canonicalize_addak=do_canonicalize_addak
         self.do_canonicalize_tippi=do_canonicalize_tippi
         self.do_replace_vowel_bases=do_replace_vowel_bases
@@ -549,8 +551,8 @@ class GurmukhiNormalizer(BaseNormalizer):
         ## replace pipe character for poorna virama 
         text=text.replace('\u007c','\u0964')
 
-        # correct visarge 
-        text=re.sub(r'([\u0a00-\u0a7f]):','\\1\u0a03',text)
+        if self.do_colon_to_visarga: # correct visarge 
+            text=re.sub(r'([\u0a00-\u0a7f]):','\\1\u0a03',text)
 
         return text
 
@@ -566,8 +568,8 @@ class GujaratiNormalizer(BaseNormalizer):
     NUKTA='\u0ABC' 
 
     def __init__(self,lang='gu',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
-                    do_normalize_vowel_ending=False):
-        super(GujaratiNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+                    do_normalize_vowel_ending=False,do_colon_to_visarga=False):
+        super(GujaratiNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_colon_to_visarga)
 
     def normalize(self,text): 
 
@@ -584,8 +586,8 @@ class GujaratiNormalizer(BaseNormalizer):
         text=text.replace('\u0ae4','\u0964')
         text=text.replace('\u0ae5','\u0965')
 
-        # correct visarge 
-        text=re.sub(r'([\u0a80-\u0aff]):','\\1\u0a83',text)
+        if self.do_colon_to_visarga: # correct visarge 
+            text=re.sub(r'([\u0a80-\u0aff]):','\\1\u0a83',text)
 
         return text
 
@@ -613,9 +615,9 @@ class OriyaNormalizer(BaseNormalizer):
 
 
     def __init__(self,lang='or',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
-                do_normalize_vowel_ending=False,
+                do_normalize_vowel_ending=False,do_colon_to_visarga=False,
                 do_remap_wa=False):
-        super(OriyaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+        super(OriyaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_colon_to_visarga)
         self.do_remap_wa=do_remap_wa
 
     def normalize(self,text): 
@@ -673,8 +675,8 @@ class OriyaNormalizer(BaseNormalizer):
         # additional consonant - not clear how to handle this
         # ignore
 
-        # correct visarge 
-        text=re.sub(r'([\u0b00-\u0b7f]):','\\1\u0b03',text)
+        if self.do_colon_to_visarga: # correct visarge 
+            text=re.sub(r'([\u0b00-\u0b7f]):','\\1\u0b03',text)
 
         return text
 
@@ -694,9 +696,9 @@ class BengaliNormalizer(BaseNormalizer):
     NUKTA='\u09BC' 
 
     def __init__(self,lang='bn',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
-                    do_normalize_vowel_ending=False,
+                    do_normalize_vowel_ending=False,do_colon_to_visarga=False,
                     do_remap_assamese_chars=False):
-        super(BengaliNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+        super(BengaliNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_colon_to_visarga)
         self.do_remap_assamese_chars=do_remap_assamese_chars
 
     def normalize(self,text):
@@ -744,8 +746,8 @@ class BengaliNormalizer(BaseNormalizer):
         text=text.replace('\u09c7\u09be','\u09cb')
         text=text.replace('\u09c7\u09d7','\u09cc')
 
-        # correct visarge 
-        text=re.sub(r'([\u0980-\u09ff]):','\\1\u0983',text)
+        if self.do_colon_to_visarga: # correct visarge 
+            text=re.sub(r'([\u0980-\u09ff]):','\\1\u0983',text)
 
         return text
 
@@ -760,8 +762,9 @@ class TamilNormalizer(BaseNormalizer):
     """
 
     def __init__(self,lang='ta',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
-            do_normalize_chandras=False,do_normalize_vowel_ending=False, normalize_grantha=False):
-        super(TamilNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_colon_to_visarga=False,
+            normalize_grantha=False):
+        super(TamilNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_colon_to_visarga)
         self.normalize_grantha = normalize_grantha
 
     def normalize(self,text): 
@@ -780,9 +783,6 @@ class TamilNormalizer(BaseNormalizer):
         text=text.replace('\u0bc7\u0bbe','\u0bcb')
         text=text.replace('\u0bc6\u0bd7','\u0bcc')
 
-        # # Correct Indic visarge. Does not apply to Tamil, since visarga is ஃ
-        # text=re.sub(r'([\u0b80-\u0bff]):','\\1\u0b83',text)
-
         if self.remove_nuktas:
             # In Tamil, it's equivalent to removing translingual ஃ
             text=text.replace('\u0b83\u0b9c', '\u0b9c') # ஃஜ (za)
@@ -791,13 +791,18 @@ class TamilNormalizer(BaseNormalizer):
             # In other places, ஃ denotes a voiceless uvular fricative or visarga if final
 
         if self.normalize_grantha:
-            # Convert additional grantha consonants to core Tamil (Tolkāppiyam) as in Vatteluttu
-            text=text.replace('ஸ்ரீ', 'திரு')
+            # Convert additional grantha consonants to core Tamil
+            text=text.replace('\u0bb6\u0bcd\u0bb0\u0bc0', '\u0ba4\u0bbf\u0bb0\u0bc1') # ஸ்ரீ -> திரு
             text=text.replace('\u0b9c','\u0b9a') # ஜ -> ச
             text=text.replace('\u0bb6','\u0b9a') # ஶ -> ச
             text=text.replace('\u0bb7','\u0b9a') # ஷ -> ச
             text=text.replace('\u0bb8','\u0b9a') # ஸ -> ச
             text=text.replace('\u0bb9','\u0b95') # ஹ -> க
+            text=text.replace('\u0b82','\u0bae\u0bcd') # ஂ -> ம்
+        
+        # # Correct Indic visarge. Does not apply to Tamil, since visarga is ஃ
+        # if self.do_colon_to_visarga:
+        #     text=re.sub(r'([\u0b80-\u0bff]):','\\1\u0b83',text)
 
         return text
 
@@ -812,8 +817,8 @@ class TeluguNormalizer(BaseNormalizer):
     """
 
     def __init__(self,lang='te',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
-                do_normalize_chandras=False,do_normalize_vowel_ending=False):
-        super(TeluguNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+                do_normalize_chandras=False,do_normalize_vowel_ending=False,do_colon_to_visarga=False):
+        super(TeluguNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_colon_to_visarga)
 
     def normalize(self,text): 
 
@@ -828,8 +833,8 @@ class TeluguNormalizer(BaseNormalizer):
         # dependent vowels
         text=text.replace('\u0c46\u0c56','\u0c48')
 
-        # correct visarge 
-        text=re.sub(r'([\u0c00-\u0c7f]):','\\1\u0c03',text)
+        if self.do_colon_to_visarga: # correct visarge 
+            text=re.sub(r'([\u0c00-\u0c7f]):','\\1\u0c03',text)
 
         return text
 
@@ -848,8 +853,8 @@ class KannadaNormalizer(BaseNormalizer):
     NUKTA='\u0CBC'
 
     def __init__(self,lang='kn',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
-            do_normalize_chandras=False,do_normalize_vowel_ending=False):
-        super(KannadaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_colon_to_visarga=False):
+        super(KannadaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_colon_to_visarga)
 
 
     def normalize(self,text): 
@@ -872,8 +877,8 @@ class KannadaNormalizer(BaseNormalizer):
         text=text.replace('\u0cc6\u0cc2','\u0cca')
         text=text.replace('\u0cca\u0cd5','\u0ccb')
 
-        # correct visarge 
-        text=re.sub(r'([\u0c80-\u0cff]):','\\1\u0c83',text)
+        if self.do_colon_to_visarga: # correct visarge 
+            text=re.sub(r'([\u0c80-\u0cff]):','\\1\u0c83',text)
 
         return text
 
@@ -953,10 +958,10 @@ class MalayalamNormalizer(BaseNormalizer):
         return text.replace('\u0d31\u0d4d\u0d31','\u0d1f\u0d4d\u0d1f')
 
     def __init__(self,lang='ml',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
-                do_normalize_vowel_ending=False,
+                do_normalize_vowel_ending=False,do_colon_to_visarga=False,
                 do_explicit_half_u=False,do_canonicalize_chillus=False,do_half_u_to_u=False, do_correct_geminated_T=False,
                 do_convert_viramas_to_chillus=False,do_convert_all_viramas_to_chillus=False):
-        super(MalayalamNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+        super(MalayalamNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_colon_to_visarga)
         self.do_explicit_half_u=do_explicit_half_u
         self.do_canonicalize_chillus=do_canonicalize_chillus
         self.do_half_u_to_u=do_half_u_to_u
@@ -1023,8 +1028,8 @@ class MalayalamNormalizer(BaseNormalizer):
         if self.do_correct_geminated_T:
             text=self._correct_geminated_T(text)
 
-        # correct visarga 
-        text=re.sub(r'([\u0d00-\u0d7f]):','\\1\u0d03',text)
+        if self.do_colon_to_visarga: # correct visarga 
+            text=re.sub(r'([\u0d00-\u0d7f]):','\\1\u0d03',text)
 
         return text
 
@@ -1076,9 +1081,10 @@ class SinhalaNormalizer(BaseNormalizer):
         '\u0DF3': '\u0DCA\u0DBD\u0DD3', # ෳ ->  ්ලී 
     }
     
-    def __init__(self,lang,remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,do_normalize_vowel_ending=False,
+    def __init__(self,lang,remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
+                do_normalize_vowel_ending=False,do_colon_to_visarga=False,
                 misra_consonants_to_suddha=False,misra_vowels_to_suddha=False):
-        super(SinhalaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
+        super(SinhalaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_colon_to_visarga)
         
         self.misra_consonants_to_suddha=misra_consonants_to_suddha
         self.misra_vowels_to_suddha=misra_vowels_to_suddha
@@ -1113,8 +1119,8 @@ class SinhalaNormalizer(BaseNormalizer):
         if self.misra_vowels_to_suddha:
             text = text.translate(self.misra_vowels_to_suddha_converter)
 
-        # correct visarge 
-        text=re.sub(r'([\u0d80-\u0dff]):','\\1\u0d83',text)
+        if self.do_colon_to_visarga: # correct visarge 
+            text=re.sub(r'([\u0d80-\u0dff]):','\\1\u0d83',text)
         return text
 
 class UrduShahmukhiNormalizer(NormalizerI):
@@ -1167,6 +1173,7 @@ class SindhiNormalizer(UrduShahmukhiNormalizer):
             'ٹ': 'ٽ',
             'ڈ': 'ڊ',
             'ڑ': 'ڙ',
+            'ݙ': 'ڏ', # Saraiki implosive to Sindhi
             # Below are ambiguous, uncomment for extreme cases
             # 'ٹھ': 'ٺ',
             # 'ڈھ': 'ڍ',
