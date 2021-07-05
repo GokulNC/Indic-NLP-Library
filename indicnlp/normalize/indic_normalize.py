@@ -449,6 +449,67 @@ class DevanagariNormalizer(BaseNormalizer):
         #print(len(re.findall(u'\u092B'+DevanagariNormalizer.NUKTA,text)))
         #print(len(re.findall(u'\u092F'+DevanagariNormalizer.NUKTA,text)))
 
+class KashmiriDevanagariNormalizer(BaseNormalizer):
+    '''
+    Refer for orthographic changes: https://r12a.github.io/scripts/devanagari/kashmiri#previousOrthographies
+    '''
+    
+    def __init__(self,lang='ks_IN',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
+            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,do_colon_to_visarga=False,
+            do_convert_1995_to_2002_orthography=True,do_convert_vowels_with_apostrophe_to_short=False,
+            do_convert_2002_to_2009_orthography=True):
+        super(KashmiriDevanagariNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,do_colon_to_visarga)
+        if remove_nuktas:
+            print("WARNING: Removing nuqtas in Kashmiri is not recommended. Proceed with caution.")
+        self.do_convert_1995_to_2002_orthography=do_convert_1995_to_2002_orthography
+        self.do_convert_vowels_with_apostrophe_to_short=do_convert_vowels_with_apostrophe_to_short
+        self.do_convert_2002_to_2009_orthography=do_convert_2002_to_2009_orthography
+    
+    def _1995_to_2002_orthography(self,text,convert_vowels_with_apostrophe_to_short=False):
+        # Dependent vowels
+        text=text.replace("\u0941\u0945","\u0956") # ुॅ ->  ॖ 
+        text=text.replace("\u0945\u0941","\u0956") # ॅु ->  ॖ 
+        text=text.replace("\u0942\u0945","\u0957") # ूॅ ->  ॗ 
+        text=text.replace("\u0945\u0942","\u0957") # ॅू ->  ॗ 
+        text=re.sub("([\u0915-\u0939\u0958-\u095f\u093c])\u093d","\\1\u0945",text) # Consonant+ऽ -> Consonant+ॅ 
+        if convert_vowels_with_apostrophe_to_short:
+            text=text.replace("\u0947'","\u0946") # े' ->  ॆ 
+            text=text.replace("\u094b'","\u094a") # ो' ->  ॊ 
+            text=text.replace("\u094c'","\u094f") # ौ' ->  ॏ 
+
+        # Independent vowels
+        text=text.replace("\u0909\u0945","\u0976") # उॅ -> ॶ 
+        text=text.replace("\u090a\u0945","\u0977") # ऊॅ -> ॷ 
+        text=text.replace("\u093d","\u0972") # ऽ -> ॲ 
+        if convert_vowels_with_apostrophe_to_short:
+            text=text.replace("\u090f'","\u090e") # ए' -> ऎ 
+            text=text.replace("\u0913'","\u0912") # ओ' -> ऒ 
+            text=text.replace("\u0914'","\u0975") # औ' -> ॵ 
+        
+        return text
+    
+    def _2002_to_2009_orthography(self,text):
+        # Dependent vowels
+        text=text.replace("\u0945","\u093a") # ॅ ->  ऺ 
+        text=text.replace("\u0949","\u093b") # ॉ ->  ऻ 
+        text=re.sub("\u094d\u0935([^\u093a-\u0957])","\u094f\\1",text) # ्व ->  ॏ 
+
+        # Independent vowels
+        text=text.replace("\u0972","\u0973") # ॲ -> ॳ 
+        text=text.replace("\u0911","\u0974") # ऑ -> ॴ 
+
+        return text
+
+    def normalize(self,text):
+        # common normalization for Devanagari 
+        text=super(KashmiriDevanagariNormalizer,self).normalize(text)
+        if self.do_convert_1995_to_2002_orthography:
+            text=self._1995_to_2002_orthography(text,self.do_convert_vowels_with_apostrophe_to_short)
+        if self.do_convert_2002_to_2009_orthography:
+            text=self._2002_to_2009_orthography(text)
+        return text
+
+
 class GurmukhiNormalizer(BaseNormalizer): 
     """
     Normalizer for the Gurmukhi script. In addition to basic normalization by the super class, 
@@ -930,15 +991,15 @@ class MalayalamNormalizer(BaseNormalizer):
     def _intermediate_virama_to_chillus(self,text):
         # Convert intermediate virama-consonants to chillu forms
         # Does not convert final virama-consonants, since it's ambiguous (if it's half-u or glottal-stop)
-        text=text.replace('\u0d23\u0d4d([\u0d00-\u0d7f])','\u0d7a\\1')
-        text=text.replace('\u0d28\u0d4d([\u0d00-\u0d7f])','\u0d7b\\1')
-        text=text.replace('\u0d30\u0d4d([\u0d00-\u0d7f])','\u0d7c\\1')
-        text=text.replace('\u0d32\u0d4d([\u0d00-\u0d7f])','\u0d7d\\1')
-        text=text.replace('\u0d33\u0d4d([\u0d00-\u0d7f])','\u0d7e\\1')
-        text=text.replace('\u0d15\u0d4d([\u0d00-\u0d7f])','\u0d7f\\1')
-        text=text.replace('\u0d2e\u0d4d([\u0d00-\u0d7f])','\u0d54\\1')
-        text=text.replace('\u0d2f\u0d4d([\u0d00-\u0d7f])','\u0d55\\1')
-        text=text.replace('\u0d34\u0d4d([\u0d00-\u0d7f])','\u0d56\\1')
+        text=re.sub('\u0d23\u0d4d([\u0d00-\u0d7f])','\u0d7a\\1',text)
+        text=re.sub('\u0d28\u0d4d([\u0d00-\u0d7f])','\u0d7b\\1',text)
+        text=re.sub('\u0d30\u0d4d([\u0d00-\u0d7f])','\u0d7c\\1',text)
+        text=re.sub('\u0d32\u0d4d([\u0d00-\u0d7f])','\u0d7d\\1',text)
+        text=re.sub('\u0d33\u0d4d([\u0d00-\u0d7f])','\u0d7e\\1',text)
+        text=re.sub('\u0d15\u0d4d([\u0d00-\u0d7f])','\u0d7f\\1',text)
+        text=re.sub('\u0d2e\u0d4d([\u0d00-\u0d7f])','\u0d54\\1',text)
+        text=re.sub('\u0d2f\u0d4d([\u0d00-\u0d7f])','\u0d55\\1',text)
+        text=re.sub('\u0d34\u0d4d([\u0d00-\u0d7f])','\u0d56\\1',text)
         return text
     
     def _all_virama_to_chillus(self,text):
@@ -1322,6 +1383,8 @@ class IndicNormalizerFactory(object):
         normalizer=None
         if language in ['hi','mr','sa','kK','ne','sd_IN']:
             normalizer=DevanagariNormalizer(lang=language, **kwargs)
+        elif language in ['ks_IN']:
+            normalizer=KashmiriDevanagariNormalizer(lang=language, **kwargs)
         elif language in ['ur','pnb','skr']:
             normalizer = UrduShahmukhiNormalizer(lang=language, **kwargs)
         elif language in ['sd']:
