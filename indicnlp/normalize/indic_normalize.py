@@ -845,6 +845,8 @@ class KannadaNormalizer(BaseNormalizer):
     * replace colon ':' by visarga if the colon follows a charcter in this script 
     """
 
+    NUKTA='\u0CBC'
+
     def __init__(self,lang='kn',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
             do_normalize_chandras=False,do_normalize_vowel_ending=False):
         super(KannadaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending)
@@ -854,6 +856,9 @@ class KannadaNormalizer(BaseNormalizer):
 
         # common normalization for Indic scripts 
         text=super(KannadaNormalizer,self).normalize(text)
+
+        if self.remove_nuktas:
+            text=text.replace(KannadaNormalizer.NUKTA,'')
 
         # replace the poorna virama codes specific to script 
         # with generic Indic script codes
