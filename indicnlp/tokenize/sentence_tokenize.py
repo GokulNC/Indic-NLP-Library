@@ -233,7 +233,7 @@ def sentence_split(text,lang,delim_pat='auto'): ## New signature
                 delim_pat=DELIM_PAT_DANDA
                 #print('LANG has danda delim. TEXT_CONTAINS_DANDA: TRUE --> DELIM_PAT_DANDA')
         else:
-            if lang in {'ur','pnb'}:
+            if lang in {'ur','pnb','ks'}:
                 delim_pat=DELIM_PAT_URDU
             else:
                 delim_pat=DELIM_PAT_NO_DANDA

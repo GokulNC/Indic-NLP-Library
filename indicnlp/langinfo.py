@@ -30,9 +30,9 @@ SCRIPT_RANGES={
               }
 
 DRAVIDIAN_LANGUAGES=['ta', 'te', 'kn', 'ml',]
-IE_LANGUAGES=['hi', 'mr', 'kK', 'sa', 'ne', 'sd_IN', 'bn', 'as', 'pa', 'gu', 'or', 'si', ]
-PERSO_ARABIC_LANGUAGES=['pnb', 'ur'] # Does not denote family name, but rather script name
-DANDA_DELIM_LANGUAGES=['as','bn','hi','ne','or','pa','sa','sd_IN']
+IE_LANGUAGES=['hi', 'mr', 'kK', 'sa', 'ne', 'sd_IN', 'ks_IN', 'bn', 'as', 'pa', 'gu', 'or', 'si', ]
+PERSO_ARABIC_LANGUAGES=['ks', 'pnb', 'ur'] # Does not denote family name, but rather script name
+DANDA_DELIM_LANGUAGES=['as','bn','hi','ne','or','pa','sa','sd_IN','ks_IN']
 
 URDU_RANGES=[
                 [0x0600,0x06ff], 

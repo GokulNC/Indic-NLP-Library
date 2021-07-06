@@ -938,7 +938,7 @@ class KannadaNormalizer(BaseNormalizer):
     NUKTA='\u0CBC'
 
     def __init__(self,lang='kn',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
-            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_colon_to_visarga=False):
+            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,do_colon_to_visarga=False):
         super(KannadaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,do_colon_to_visarga)
 
 
@@ -1219,6 +1219,11 @@ class UrduShahmukhiNormalizer(NormalizerI):
         self.remove_diacritic_marks = remove_diacritics
         self.normalize_numerals = do_normalize_numerals
 
+        if lang == 'ks':
+            # Diacritics are very important in Kashmiri, and always written & expected
+            # Also, UrduHack doesnot drop Kashmiri-specific diacritics
+            self.remove_diacritic_marks = False
+
         from importlib import import_module
         self.preprocessing = import_module('urduhack.preprocessing')
         self.normalization = import_module('urduhack.normalization.character')
@@ -1240,9 +1245,9 @@ class UrduShahmukhiNormalizer(NormalizerI):
         })
     
     def normalize(self, text):
-        # TODO: Use only required normalizers
         text = self._normalize_punctuations(text)
         # text = self.preprocessing.normalize_whitespace(text)
+
         if self.remove_diacritic_marks:
             text = self.normalization.remove_diacritics(text)
         text = self.normalization.normalize_characters(text)
@@ -1250,6 +1255,7 @@ class UrduShahmukhiNormalizer(NormalizerI):
         if self.normalize_numerals:
             text = text.translate(self.numerals_normalizer)
         text = self.normalization.normalize_combine_characters(text)
+
         text = self.normalization.punctuations_space(text)
         # text = self.preprocessing.digits_space(text)
         text = self.preprocessing.english_characters_space(text)
@@ -1395,7 +1401,7 @@ class IndicNormalizerFactory(object):
             normalizer=DevanagariNormalizer(lang=language, **kwargs)
         elif language in ['ks_IN']:
             normalizer=KashmiriDevanagariNormalizer(lang=language, **kwargs)
-        elif language in ['ur','pnb','skr']:
+        elif language in ['ur','pnb','skr','ks']:
             normalizer = UrduShahmukhiNormalizer(lang=language, **kwargs)
         elif language in ['sd']:
             normalizer = SindhiNormalizer(lang=language, **kwargs)
@@ -1434,7 +1440,7 @@ class IndicNormalizerFactory(object):
         """
         Is the language supported?
         """
-        if language in ['hi','mr','sa','kK','ne','sd_IN',
+        if language in ['hi','mr','sa','kK','ne','sd_IN','ks_IN',
                         'pa',
                         'gu',
                         'bn','as',
@@ -1444,7 +1450,7 @@ class IndicNormalizerFactory(object):
                         'ta',
                         'te',
                         'si',
-                        'ur','pnb','sd','skr',
+                        'ur','pnb','sd','skr','ks',
                         'ar','fa',
                         'en']:
             return True
