@@ -82,6 +82,7 @@ class BaseNormalizer(NormalizerI):
             do_normalize_chandras=False,
             do_normalize_vowel_ending=False,
             do_normalize_numerals=False,
+            convert_numerals_to_native=False,
             do_colon_to_visarga=False):
 
         self.lang=lang
@@ -91,6 +92,7 @@ class BaseNormalizer(NormalizerI):
         self.do_normalize_chandras=do_normalize_chandras
         self.do_normalize_vowel_ending=do_normalize_vowel_ending
         self.do_normalize_numerals=do_normalize_numerals
+        self.convert_numerals_to_native=convert_numerals_to_native
         self.do_colon_to_visarga=do_colon_to_visarga
         # TODO: Make visarga correction generic
         
@@ -101,12 +103,14 @@ class BaseNormalizer(NormalizerI):
         #self._init_visarga_correction()
     
     def _init_normalize_numerals(self):
-        NUMERALS_OFFSET=0x66
         native_to_hindu_numerals_map={}
+        hindu_numerals_to_native_map={}
         for i in range(10):
-            native_digit=langinfo.offset_to_char(NUMERALS_OFFSET+i,self.lang)
+            native_digit=langinfo.offset_to_char(langinfo.NUMERIC_OFFSET_START+i,self.lang)
             native_to_hindu_numerals_map[native_digit]=str(i)
+            hindu_numerals_to_native_map[str(i)]=native_digit
         self.native_to_hindu_numerals_translator=str.maketrans(native_to_hindu_numerals_map)
+        self.hindu_numerals_to_native_translator=str.maketrans(hindu_numerals_to_native_map)
         
     def _init_normalize_vowel_ending(self):
 
@@ -318,8 +322,11 @@ class BaseNormalizer(NormalizerI):
         text=self._normalize_nasals(text)
         if self.do_normalize_vowel_ending:
             text=self._normalize_vowel_ending(text)
+        
         if self.do_normalize_numerals:
             text=text.translate(self.native_to_hindu_numerals_translator)
+        elif self.convert_numerals_to_native:
+            text=text.translate(self.hindu_numerals_to_native_translator)
         
         return text
 
@@ -358,8 +365,8 @@ class DevanagariNormalizer(BaseNormalizer):
     NUKTA='\u093C' 
 
     def __init__(self,lang='hi',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
-            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,do_colon_to_visarga=False):
-        super(DevanagariNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,do_colon_to_visarga)
+            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False):
+        super(DevanagariNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
 
     def _normalize_vowels(self,text):
         # Two-part vowels
@@ -465,10 +472,10 @@ class KashmiriDevanagariNormalizer(DevanagariNormalizer):
     '''
 
     def __init__(self,lang='ks_IN',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
-            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,do_colon_to_visarga=False,
+            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False,
             do_convert_1995_to_2002_orthography=True,do_convert_vowels_with_apostrophe_to_short=False,
             do_convert_2002_to_2009_orthography=True):
-        super(KashmiriDevanagariNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,do_colon_to_visarga)
+        super(KashmiriDevanagariNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
         if remove_nuktas:
             print("WARNING: Removing nuqtas in Kashmiri is not recommended. Proceed with caution.")
         self.do_convert_1995_to_2002_orthography=do_convert_1995_to_2002_orthography
@@ -527,9 +534,9 @@ class SanskritNormalizer(DevanagariNormalizer):
     '''
 
     def __init__(self,lang='sa',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
-            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,do_colon_to_visarga=True,
+            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=True,do_colon_to_visarga=True,
             do_drop_accent=True,do_split_sandhi=False,do_cache_sandhi=True):
-        super(SanskritNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,do_colon_to_visarga)
+        super(SanskritNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
         self.do_drop_accent = do_drop_accent
         self.do_split_sandhi = do_split_sandhi
         if self.do_split_sandhi:
@@ -593,11 +600,11 @@ class GurmukhiNormalizer(BaseNormalizer):
     }
 
     def __init__(self,lang='pa',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
-                do_normalize_vowel_ending=False,do_normalize_numerals=False,do_colon_to_visarga=False,
+                do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False,
                 do_canonicalize_addak=False, 
                 do_canonicalize_tippi=False, 
                 do_replace_vowel_bases=False):
-        super(GurmukhiNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,do_colon_to_visarga)
+        super(GurmukhiNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
         self.do_canonicalize_addak=do_canonicalize_addak
         self.do_canonicalize_tippi=do_canonicalize_tippi
         self.do_replace_vowel_bases=do_replace_vowel_bases
@@ -699,8 +706,8 @@ class GujaratiNormalizer(BaseNormalizer):
     NUKTA='\u0ABC' 
 
     def __init__(self,lang='gu',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
-                    do_normalize_vowel_ending=False,do_normalize_numerals=False,do_colon_to_visarga=False):
-        super(GujaratiNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,do_colon_to_visarga)
+                    do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False):
+        super(GujaratiNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
 
     def normalize(self,text): 
 
@@ -746,9 +753,9 @@ class OriyaNormalizer(BaseNormalizer):
 
 
     def __init__(self,lang='or',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
-                do_normalize_vowel_ending=False,do_normalize_numerals=False,do_colon_to_visarga=False,
+                do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False,
                 do_remap_wa=False):
-        super(OriyaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,do_colon_to_visarga)
+        super(OriyaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
         self.do_remap_wa=do_remap_wa
 
     def normalize(self,text): 
@@ -827,9 +834,9 @@ class BengaliNormalizer(BaseNormalizer):
     NUKTA='\u09BC' 
 
     def __init__(self,lang='bn',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
-                    do_normalize_vowel_ending=False,do_normalize_numerals=False,do_colon_to_visarga=False,
+                    do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False,
                     do_remap_assamese_chars=False):
-        super(BengaliNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,do_colon_to_visarga)
+        super(BengaliNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
         self.do_remap_assamese_chars=do_remap_assamese_chars
 
     def normalize(self,text):
@@ -893,9 +900,9 @@ class TamilNormalizer(BaseNormalizer):
     """
 
     def __init__(self,lang='ta',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
-            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,do_colon_to_visarga=False,
+            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False,
             normalize_grantha=False):
-        super(TamilNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,do_colon_to_visarga)
+        super(TamilNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
         self.normalize_grantha = normalize_grantha
 
     def normalize(self,text): 
@@ -948,8 +955,8 @@ class TeluguNormalizer(BaseNormalizer):
     """
 
     def __init__(self,lang='te',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
-                do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,do_colon_to_visarga=False):
-        super(TeluguNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,do_colon_to_visarga)
+                do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False):
+        super(TeluguNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
 
     def normalize(self,text): 
 
@@ -984,8 +991,8 @@ class KannadaNormalizer(BaseNormalizer):
     NUKTA='\u0CBC'
 
     def __init__(self,lang='kn',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
-            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,do_colon_to_visarga=False):
-        super(KannadaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,do_colon_to_visarga)
+            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False):
+        super(KannadaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
 
 
     def normalize(self,text): 
@@ -1089,10 +1096,10 @@ class MalayalamNormalizer(BaseNormalizer):
         return text.replace('\u0d31\u0d4d\u0d31','\u0d1f\u0d4d\u0d1f')
 
     def __init__(self,lang='ml',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
-                do_normalize_vowel_ending=False,do_normalize_numerals=False,do_colon_to_visarga=False,
+                do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False,
                 do_explicit_half_u=False,do_canonicalize_chillus=False,do_half_u_to_u=False, do_correct_geminated_T=False,
                 do_convert_viramas_to_chillus=False,do_convert_all_viramas_to_chillus=False):
-        super(MalayalamNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,do_colon_to_visarga)
+        super(MalayalamNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
         self.do_explicit_half_u=do_explicit_half_u
         self.do_canonicalize_chillus=do_canonicalize_chillus
         self.do_half_u_to_u=do_half_u_to_u
@@ -1213,9 +1220,9 @@ class SinhalaNormalizer(BaseNormalizer):
     }
     
     def __init__(self,lang,remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
-                do_normalize_vowel_ending=False,do_normalize_numerals=False,do_colon_to_visarga=False,
+                do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False,
                 misra_consonants_to_suddha=False,misra_vowels_to_suddha=False):
-        super(SinhalaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,do_colon_to_visarga)
+        super(SinhalaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
         
         self.misra_consonants_to_suddha=misra_consonants_to_suddha
         self.misra_vowels_to_suddha=misra_vowels_to_suddha
@@ -1260,10 +1267,11 @@ class UrduShahmukhiNormalizer(NormalizerI):
     '''
     EAST_ARABIC_NUMERALS = "۰۱۲۳۴۵۶۷۸۹"
 
-    def __init__(self, lang, remove_diacritics=True, do_normalize_numerals=False):
+    def __init__(self, lang='ur', remove_diacritics=True, do_normalize_numerals=False,convert_numerals_to_native=False):
         self.lang = lang
         self.remove_diacritic_marks = remove_diacritics
         self.normalize_numerals = do_normalize_numerals
+        self.convert_numerals_to_native = convert_numerals_to_native
 
         if lang == 'ks':
             # Diacritics are very important in Kashmiri, and always written & expected
@@ -1289,6 +1297,9 @@ class UrduShahmukhiNormalizer(NormalizerI):
         self.numerals_normalizer = str.maketrans({
             native: str(i) for i, native in enumerate(UrduShahmukhiNormalizer.EAST_ARABIC_NUMERALS)
         })
+        self.numerals_to_persian = str.maketrans({
+            str(i): native for i, native in enumerate(UrduShahmukhiNormalizer.EAST_ARABIC_NUMERALS)
+        })
     
     def normalize(self, text):
         text = self._normalize_punctuations(text)
@@ -1300,6 +1311,8 @@ class UrduShahmukhiNormalizer(NormalizerI):
         text = text.translate(self.arabic_normalizer)
         if self.normalize_numerals:
             text = text.translate(self.numerals_normalizer)
+        elif self.convert_numerals_to_native:
+            text = text.translate(self.numerals_to_persian)
         text = self.normalization.normalize_combine_characters(text)
 
         text = self.normalization.punctuations_space(text)
@@ -1308,8 +1321,8 @@ class UrduShahmukhiNormalizer(NormalizerI):
         return text
 
 class SindhiNormalizer(UrduShahmukhiNormalizer):
-    def __init__(self, lang, remove_diacritics=True, do_normalize_numerals=False):
-        super().__init__(lang, remove_diacritics, do_normalize_numerals)
+    def __init__(self, lang='sd', remove_diacritics=True, do_normalize_numerals=False,convert_numerals_to_native=False):
+        super().__init__(lang, remove_diacritics, do_normalize_numerals, convert_numerals_to_native)
 
         self.urdu_to_sindhi = str.maketrans({
             'ی': 'ي',
@@ -1342,10 +1355,11 @@ class ArabicNormalizer(NormalizerI):
     https://github.com/linuxscout/pyarabic/blob/master/doc/features.md
     '''
 
-    def __init__(self, lang, remove_diacritics=True, do_normalize_numerals=False):
+    def __init__(self, lang='ar', remove_diacritics=True, do_normalize_numerals=False,convert_numerals_to_native=False):
         self.lang = lang
         self.remove_diacritic_marks = remove_diacritics
         self.normalize_numerals = do_normalize_numerals
+        self.convert_numerals_to_native = convert_numerals_to_native
 
         from importlib import import_module
         self.normalizer = import_module('pyarabic.araby')
@@ -1360,17 +1374,20 @@ class ArabicNormalizer(NormalizerI):
         text = self.normalizer.strip_tatweel(text)
         text = self.normalizer.normalize_ligature(text)
         if self.normalize_numerals:
-            text = self.araby_trans.normalize_digits(text, source='all', out='west')
+            text = self.araby_trans.normalize_digits(text)
+        elif self.convert_numerals_to_native:
+            text = self.araby_trans.normalize_digits(text, source='all', out='east')
         return text
 
 class PersianNormalizer(NormalizerI):
-    def __init__(self, lang, remove_diacritics=True):
+    def __init__(self, lang='fa', remove_diacritics=True, do_normalize_numerals=False,convert_numerals_to_native=False):
         self.lang = lang
-        from parsivar import Normalizer as ParsivarNormalizer
-        self.final_normalizer = ParsivarNormalizer()
 
         from hazm import Normalizer as HazmNormalizer
-        self.normalizer = HazmNormalizer(persian_numbers=False, remove_diacritics=True, persian_style=False)
+        self.normalizer = HazmNormalizer(persian_numbers=convert_numerals_to_native, remove_diacritics=remove_diacritics, persian_style=False)
+
+        from parsivar import Normalizer as ParsivarNormalizer
+        self.final_normalizer = ParsivarNormalizer()
     
     def normalize(self, text):
         text = self._normalize_punctuations(text)
