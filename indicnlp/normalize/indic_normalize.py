@@ -459,7 +459,7 @@ class DevanagariNormalizer(BaseNormalizer):
         #print(len(re.findall(u'\u092B'+DevanagariNormalizer.NUKTA,text)))
         #print(len(re.findall(u'\u092F'+DevanagariNormalizer.NUKTA,text)))
 
-class KashmiriDevanagariNormalizer(BaseNormalizer):
+class KashmiriDevanagariNormalizer(DevanagariNormalizer):
     '''
     Refer for orthographic changes: https://r12a.github.io/scripts/devanagari/kashmiri#previousOrthographies
     '''
@@ -517,6 +517,52 @@ class KashmiriDevanagariNormalizer(BaseNormalizer):
             text=self._1995_to_2002_orthography(text,self.do_convert_vowels_with_apostrophe_to_short)
         if self.do_convert_2002_to_2009_orthography:
             text=self._2002_to_2009_orthography(text)
+        return text
+
+class SanskritNormalizer(DevanagariNormalizer):
+    '''
+    On top of Devanagari normalizer, implements Sanskrit-specific features:
+    - Drop Vedic Tone Accent marks
+    - [Experimental] Sandhi splitter using: https://github.com/kmadathil/sanskrit_parser
+    '''
+
+    def __init__(self,lang='sa',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
+            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,do_colon_to_visarga=True,
+            do_drop_accent=True,do_split_sandhi=False,do_cache_sandhi=True):
+        super(SanskritNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,do_colon_to_visarga)
+        self.do_drop_accent = do_drop_accent
+        self.do_split_sandhi = do_split_sandhi
+        if self.do_split_sandhi:
+            from sanskrit_parser import Parser
+            self.parser = Parser(output_encoding='Devanagari')
+            self.do_cache_sandhi = do_cache_sandhi
+            if self.do_cache_sandhi:
+                # Sandhi-splitting implementation is combinatorial-scoring based
+                # So for faster access, better to cache already seen chunks
+                self.sandhi_cache = {}
+    
+    def normalize(self,text):
+        # common normalization for Devanagari 
+        text=super(SanskritNormalizer,self).normalize(text)
+        if self.do_drop_accent:
+            # Drop Sandhi-bridge-accent
+            text = re.sub('[\u0967\u0969][\u0951\u0952]', '', text)
+            # Drop all other remaining accent marks
+            text = re.sub('[\u0951-\u0954\u1cd0-\u1cff\u0971]', '', text)
+        
+        if self.do_split_sandhi:
+            # Split sentence into parts
+            matches = re.findall('[\u0900-\u0963\u0972-\u097f]+', text)
+            # Sandhi-split for each chunk
+            for match in matches:
+                if match not in self.sandhi_cache:
+                    # Ref: https://github.com/kmadathil/sanskrit_parser/blob/master/examples/basic_example.ipynb
+                    split_seq = self.parser.split(match, limit=1)[0]
+                    splits = [t.transcoded(split_seq.parser.output_encoding, split_seq.parser.strict_io) for t in split_seq.split]
+                    self.sandhi_cache[match] = ' '.join(splits)
+                
+                text = text.replace(match, self.sandhi_cache[match])
+
         return text
 
 
@@ -1397,8 +1443,10 @@ class IndicNormalizerFactory(object):
             |remove_nuktas: boolean, should the normalizer remove nukta characters 
         """
         normalizer=None
-        if language in ['hi','mr','sa','kK','ne','sd_IN']:
+        if language in ['hi','mr','kK','ne','sd_IN']:
             normalizer=DevanagariNormalizer(lang=language, **kwargs)
+        elif language in ['sa']:
+            normalizer=SanskritNormalizer(lang=language, **kwargs)
         elif language in ['ks_IN']:
             normalizer=KashmiriDevanagariNormalizer(lang=language, **kwargs)
         elif language in ['ur','pnb','skr','ks']:
