@@ -1,6 +1,6 @@
 # Indic NLP Library
 
-The goal of the Indic NLP Library is to build Python based libraries for common text processing and Natural Language Processing in Indian languages. Indian languages share a lot of similarity in terms of script, phonology, language syntax, etc. and this library is an attempt to provide a general solution to very commonly required toolsets for Indian language text.
+The goal of the Indic NLP Library is to build Python based utilities for common text processing and Natural Language Processing for languages of the Indian sub-continent. Indic languages share a lot of similarity in terms of script, phonology, language syntax, etc. and this library is an attempt to provide a general solution to very commonly required toolsets for Indian language text.
 
 The library provides the following functionalities:
 
@@ -25,9 +25,8 @@ The data resources required by the Indic NLP Library are hosted in a different r
 - Python 3.x 
    - (For Python 2.x version check the tag `PYTHON_2.7_FINAL_JAN_2019`. Not actively supporting Python 2.x anymore, but will try to maintain as much compatibility as possible)
 - [Indic NLP Resources](https://github.com/anoopkunchukuttan/indic_nlp_resources)
-- [Urduhack](https://github.com/urduhack/urduhack): Needed only if Urdu normalization is required. It has other dependencies like Tensorflow.
-- Other dependencies are listed in setup.py
-
+- Other dependencies are listed in `requirements.txt`
+- For Perso-Arabic scripts, [check here](PersoArabic.md)
 
 ## Configuration
 
