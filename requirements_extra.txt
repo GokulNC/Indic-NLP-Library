@@ -1,0 +1,15 @@
+urduhack
+pyarabic
+hazm
+parsivar
+
+pyicu
+unidecode
+python-Levenshtein
+
+normality
+clean-text
+
+sanskrit_parser
+gensim
+sentencepiece
