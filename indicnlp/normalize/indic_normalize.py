@@ -531,6 +531,7 @@ class SanskritNormalizer(DevanagariNormalizer):
     On top of Devanagari normalizer, implements Sanskrit-specific features:
     - Drop Vedic Tone Accent marks
     - [Experimental] Sandhi splitter using: https://github.com/kmadathil/sanskrit_parser
+      - Very time-consuming, recommended to run using multiprocessing
     '''
 
     def __init__(self,lang='sa',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
@@ -540,6 +541,8 @@ class SanskritNormalizer(DevanagariNormalizer):
         self.do_drop_accent = do_drop_accent
         self.do_split_sandhi = do_split_sandhi
         if self.do_split_sandhi:
+            import warnings
+            warnings.filterwarnings("ignore", category=UserWarning)
             from sanskrit_parser import Parser
             self.parser = Parser(output_encoding='Devanagari')
             self.do_cache_sandhi = do_cache_sandhi
@@ -564,7 +567,12 @@ class SanskritNormalizer(DevanagariNormalizer):
             for match in matches:
                 if match not in self.sandhi_cache:
                     # Ref: https://github.com/kmadathil/sanskrit_parser/blob/master/examples/basic_example.ipynb
-                    split_seq = self.parser.split(match, limit=1)[0]
+                    split_seqs = self.parser.split(match, limit=1)
+                    if not split_seqs:
+                        # print("Unable to find roots for:", match)
+                        self.sandhi_cache[match] = match
+                        continue
+                    split_seq = split_seqs[0]
                     splits = [t.transcoded(split_seq.parser.output_encoding, split_seq.parser.strict_io) for t in split_seq.split]
                     self.sandhi_cache[match] = ' '.join(splits)
                 
