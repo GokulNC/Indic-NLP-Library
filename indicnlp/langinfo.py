@@ -18,6 +18,7 @@ SCRIPT_RANGES={
                  'kn':[0x0c80,0x0cff] ,  
                  'ml':[0x0d00,0x0d7f] ,  
                  'si':[0x0d80,0x0dff] ,  
+                 'pi_LK':[0x0d80,0x0dff] ,  
                  'hi':[0x0900,0x097f] ,  
                  'mr':[0x0900,0x097f] ,   
                  'kK':[0x0900,0x097f] ,   
@@ -30,7 +31,7 @@ SCRIPT_RANGES={
               }
 
 DRAVIDIAN_LANGUAGES=['ta', 'te', 'kn', 'ml',]
-IE_LANGUAGES=['hi', 'mr', 'kK', 'sa', 'ne', 'sd_IN', 'ks_IN', 'bn', 'as', 'pa', 'gu', 'or', 'si', ]
+IE_LANGUAGES=['hi', 'mr', 'kK', 'sa', 'ne', 'sd_IN', 'ks_IN', 'bn', 'as', 'pa', 'gu', 'or', 'si', 'pi_LK']
 PERSO_ARABIC_LANGUAGES=['ks', 'pnb', 'ur'] # Does not denote family name, but rather script name
 DANDA_DELIM_LANGUAGES=['as','bn','hi','ne','or','pa','sa','sd_IN','ks_IN']
 

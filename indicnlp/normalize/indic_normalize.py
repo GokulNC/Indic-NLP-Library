@@ -1213,7 +1213,7 @@ class SinhalaNormalizer(BaseNormalizer):
         # '\u0D9E': '\u0D9F',
         '\u0D9E': '\u0DAB', # ;n -> .n (Very approx)
         '\u0DA4': '\u0DAB', # ~n -> .n (Very approx)
-        '\u0DB1': '\u0DAB', #  n -> .n
+        '\u0DB1': '\u0DAB', #  n -> .n (This is generally done to avoid confusion with 't')
 
         # Misc
         '\u0DC6': '\u0DB4', # f->p
@@ -1238,16 +1238,38 @@ class SinhalaNormalizer(BaseNormalizer):
         '\u0DF3': '\u0DCA\u0DBD\u0DD3', # ෳ ->  ්ලී 
     }
     
-    def __init__(self,lang,remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
+    def __init__(self,lang='si',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
                 do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False,
-                misra_consonants_to_suddha=False,misra_vowels_to_suddha=False):
+                misra_consonants_to_suddha=False,misra_vowels_to_suddha=False,
+                do_prenasalized_consonants_to_clusters=False):
         super(SinhalaNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
         
-        self.misra_consonants_to_suddha=misra_consonants_to_suddha
-        self.misra_vowels_to_suddha=misra_vowels_to_suddha
+        self.misra_consonants_to_suddha=misra_consonants_to_suddha and lang != 'pi_LK'
+        self.misra_vowels_to_suddha=misra_vowels_to_suddha and lang != 'pi_LK'
+        self.do_prenasalized_consonants_to_clusters=do_prenasalized_consonants_to_clusters or lang == 'pi_LK'
         
         self.misra_consonants_to_suddha_converter = str.maketrans(SinhalaNormalizer.MISRA_TO_SUDDA_CONSONANTS_MAP)
         self.misra_vowels_to_suddha_converter = str.maketrans(SinhalaNormalizer.MISRA_TO_SUDDA_VOWELS_MAP)
+    
+    def convert_prenasalized_consonants_to_clusters(self,text):
+        # Useful for Sinhala to Pali & Sanskrit (for 1-to-1 Devanagari mapping)
+        text=text.replace('\u0d9f','\u0d9e\u0dca\u0d9c') # ඟ -> ඞ්ග (ङ्ग)
+        text=text.replace('\u0dac','\u0dab\u0dca\u0da9') # ඬ -> ණ්ඩ (ण्ड)
+        text=text.replace('\u0db3','\u0db1\u0dca\u0daf') # ඳ -> න්ද (न्द)
+        text=text.replace('\u0db9','\u0db8\u0dca\u0db6') # ඹ -> ම්බ (म्ब)
+        text=text.replace('\u0da5','\u0da2\u0dca\u0da4') # ඥ -> ජ්ඤ (ज्ञ)
+        text=text.replace('\u0da6','\u0da4\u0dca\u0da2') # ඦ -> ඤ්ජ (ञ्ज)
+        return text
+    
+    def convert_nasal_clusters_to_prenasalized_consonants(self,text):
+        # For Pali & Sanskrit to Sinhala. Can be safely used by default
+        text=text.replace('\u0d9e\u0dca\u0d9c','\u0d9f') # ඞ්ග (ङ्ग) -> ඟ
+        text=text.replace('\u0dab\u0dca\u0da9','\u0dac') # ණ්ඩ (ण्ड) -> ඬ
+        text=text.replace('\u0db1\u0dca\u0daf','\u0db3') # න්ද (न्द) -> ඳ
+        text=text.replace('\u0db8\u0dca\u0db6','\u0db9') # ම්බ (म्ब) -> ඹ
+        text=text.replace('\u0da2\u0dca\u0da4','\u0da5') # ජ්ඤ (ज्ञ) -> ඥ
+        text=text.replace('\u0da4\u0dca\u0da2','\u0da6') # ඤ්ජ (ञ्ज) -> ඦ
+        return text
     
     def normalize(self, text):
         # common normalization for Indic scripts 
@@ -1269,6 +1291,11 @@ class SinhalaNormalizer(BaseNormalizer):
         text = text.replace('\u0DD9\u0DD9', '\u0DDB')  # කෙෙ -> කෛ
         text = text.replace('\u0DD8\u0DD8', '\u0DF2')  # කෘෘ -> කෲ
 
+        if self.do_prenasalized_consonants_to_clusters:
+            text=self.convert_prenasalized_consonants_to_clusters(text)
+        else:
+            text=self.convert_nasal_clusters_to_prenasalized_consonants(text)
+        
         # Misra superset to Suddha subset
         # Warning: Do not use for Pali
         if self.misra_consonants_to_suddha:
@@ -1511,7 +1538,7 @@ class IndicNormalizerFactory(object):
             normalizer=TamilNormalizer(lang=language, **kwargs)
         elif language in ['te']:
             normalizer=TeluguNormalizer(lang=language, **kwargs)
-        elif language in ['si']:
+        elif language in ['si','pi_LK']:
             normalizer=SinhalaNormalizer(lang=language, **kwargs)
         elif language in ['en']:
             normalizer = EnglishNormalizer(lang=language, **kwargs)
@@ -1533,7 +1560,7 @@ class IndicNormalizerFactory(object):
                         'kn',
                         'ta',
                         'te',
-                        'si',
+                        'si','pi_LK',
                         'ur','pnb','sd','skr','ks',
                         'ar','fa',
                         'en']:
