@@ -978,6 +978,10 @@ class TeluguNormalizer(BaseNormalizer):
         # common normalization for Indic scripts 
         text=super(TeluguNormalizer,self).normalize(text)
 
+        if self.remove_nuktas:
+            text=text.replace('\u0c58','\u0c1a') # ౘ -> చ 
+            text=text.replace('\u0c59','\u0c1c') # ౙ -> జ 
+
         # replace the poorna virama codes specific to script 
         # with generic Indic script codes
         text=text.replace('\u0c64','\u0964')
