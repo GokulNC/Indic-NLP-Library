@@ -611,10 +611,12 @@ class GurmukhiNormalizer(BaseNormalizer):
                 do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False,
                 do_canonicalize_addak=False, 
                 do_canonicalize_tippi=False, 
+                do_canonicalize_yakash=False,
                 do_replace_vowel_bases=False):
         super(GurmukhiNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
         self.do_canonicalize_addak=do_canonicalize_addak
         self.do_canonicalize_tippi=do_canonicalize_tippi
+        self.do_canonicalize_yakash=do_canonicalize_yakash
         self.do_replace_vowel_bases=do_replace_vowel_bases
 
 
@@ -654,6 +656,11 @@ class GurmukhiNormalizer(BaseNormalizer):
         # Tippi 
         if self.do_canonicalize_tippi:
             text=text.replace('\u0a70','\u0a02') 
+        
+        # Yakash
+        if self.do_canonicalize_yakash:
+            ##  ੵ ->  ੍ਯ ( Example: ਸਿਖੵਾ -> ਸਿਖ੍ਯਾ )
+            text=text.replace('\u0a75','\u0a4d\u0a2f')
 
         # Vowels: Gurumuki has multiple ways of representing independent vowels due
         # to the characters 'iri' and 'ura'. 
