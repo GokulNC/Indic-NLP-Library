@@ -3,6 +3,8 @@
 ## Pre-requisites
 
 ```
+pip install indic-nlp-library[extras]
+    OR
 pip install -r requirements_extra.txt
 ```
 
