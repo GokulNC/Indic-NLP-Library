@@ -647,15 +647,6 @@ class GurmukhiNormalizer(BaseNormalizer):
 
 
     def normalize(self,text): 
-
-        # Addak
-        if self.do_canonicalize_addak:
-            ## replace addak+consonant with consonat+halant+consonant
-            text=re.sub(r'\u0a71(.)','\\1\u0a4d\\1',text)
-            
-        # Tippi 
-        if self.do_canonicalize_tippi:
-            text=text.replace('\u0a70','\u0a02') 
         
         # Yakash
         if self.do_canonicalize_yakash:
@@ -665,6 +656,28 @@ class GurmukhiNormalizer(BaseNormalizer):
         # Vowels: Gurumuki has multiple ways of representing independent vowels due
         # to the characters 'iri' and 'ura'. 
         text=self._normalize_vowels(text)
+
+        # Tippi 
+        if self.do_canonicalize_tippi:
+            # Replace tippi-based germination by addak for nasal consonants
+            text=re.sub('\u0a70([\u0a19\u0a1e\u0a23\u0a28\u0a2e])','\u0a71\\1',text)
+            # Replace tippis by bindi
+            text=text.replace('\u0a70','\u0a02')
+        else:
+            # Fix to tippis (from bindi)
+            text=re.sub('([\u0a05\u0a07\u0a09\u0a15-\u0a39\u0a3c\u0a3f\u0a41\u0a42\u0a59-\u0a5e])\u0a02','\\1\u0a70',text)
+            # Fix to bindis (from tippis)
+            text=re.sub('([^\u0a05\u0a07\u0a09\u0a15-\u0a39\u0a3c\u0a3f\u0a41\u0a42\u0a59-\u0a5e])\u0a70','\\1\u0a02',text)
+            # Fix germination to tippis (from addak) for nasal consonants
+            text=re.sub('\u0a71([\u0a19\u0a1e\u0a23\u0a28\u0a2e])','\u0a70\\1',text)
+        
+        # Addak
+        if self.do_canonicalize_addak:
+            ## replace addak+consonant with consonat+halant+consonant
+            text=re.sub(r'\u0a71(.)','\\1\u0a4d\\1',text)
+        # else:
+        #     ## TODO: replace consonat+halant+consonant with addak+consonant
+        #     pass
 
         # common normalization for Indic scripts 
         text=super(GurmukhiNormalizer,self).normalize(text)
