@@ -31,7 +31,7 @@ class AggressiveScriptUnifier():
         normalizer_factory=indic_normalize.IndicNormalizerFactory()
 
         ## for languages with common parameters
-        for lang in ['hi','mr','sa','kK','ne','sd','bn','gu','ta','te','kn']:
+        for lang in ['hi','mr','sa','kK','ne','sd','gu','ta','te','kn']:
             self.normalizer_map[lang]=normalizer_factory.get_normalizer(lang, nasals_mode=self.nasals_mode, 
                     do_normalize_chandras=self.do_normalize_chandras, remove_nuktas=self.remove_nuktas,
                     do_normalize_vowel_ending=self.do_normalize_vowel_ending)
@@ -46,10 +46,14 @@ class AggressiveScriptUnifier():
                     do_normalize_chandras=self.do_normalize_chandras, remove_nuktas=self.remove_nuktas,
                     do_normalize_vowel_ending=self.do_normalize_vowel_ending,
                     do_remap_wa=True)
+        self.normalizer_map['bn']=normalizer_factory.get_normalizer('bn', nasals_mode=self.nasals_mode,
+                    do_normalize_chandras=self.do_normalize_chandras, remove_nuktas=self.remove_nuktas,
+                    do_normalize_vowel_ending=self.do_normalize_vowel_ending,
+                    do_canonicalize_khanda_ta=True)
         self.normalizer_map['as']=normalizer_factory.get_normalizer('as', nasals_mode=self.nasals_mode,
                     do_normalize_chandras=self.do_normalize_chandras, remove_nuktas=self.remove_nuktas,
                     do_normalize_vowel_ending=self.do_normalize_vowel_ending,
-                    do_remap_assamese_chars=True)
+                    do_remap_assamese_chars=True,do_canonicalize_khanda_ta=True)
         self.normalizer_map['ml']=normalizer_factory.get_normalizer('ml', nasals_mode=self.nasals_mode,
                     do_normalize_chandras=self.do_normalize_chandras, remove_nuktas=self.remove_nuktas,
                     do_normalize_vowel_ending=self.do_normalize_vowel_ending,

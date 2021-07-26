@@ -863,9 +863,10 @@ class BengaliNormalizer(BaseNormalizer):
 
     def __init__(self,lang='bn',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',do_normalize_chandras=False,
                     do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False,
-                    do_remap_assamese_chars=False):
+                    do_remap_assamese_chars=False,do_canonicalize_khanda_ta=False):
         super(BengaliNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
         self.do_remap_assamese_chars=do_remap_assamese_chars
+        self.do_canonicalize_khanda_ta=do_canonicalize_khanda_ta
 
     def normalize(self,text):
 
@@ -898,6 +899,9 @@ class BengaliNormalizer(BaseNormalizer):
             else:
                 text=text.replace('\u09b0','\u09f0')  #  'ra' character
 
+        if self.do_canonicalize_khanda_ta:
+            text=text.replace('\u09ce','\u09a4\u09cd') # ৎ -> ত্ 
+        
         # replace the poorna virama codes specific to script 
         # with generic Indic script codes
         text=text.replace('\u09e4','\u0964')
