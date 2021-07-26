@@ -823,12 +823,12 @@ class OriyaNormalizer(BaseNormalizer):
         # # (this applied to wa to ba rule also above)
         # text=text.replace('\u0b35','\u0b2c')
 
-        # replace va with wa 
-        text=text.replace('\u0b35','\u0b71')
-
-        # replace wa with ba 
         if self.do_remap_wa:
-            text=text.replace('\u0b71','\u0b2c')
+            # replace wa with va
+            text=text.replace('\u0b71','\u0b35')
+        else:
+            # replace va with wa
+            text=text.replace('\u0b35','\u0b71')
 
         # AI dependent vowel sign 
         text=text.replace('\u0b47\u0b56','\u0b58')
