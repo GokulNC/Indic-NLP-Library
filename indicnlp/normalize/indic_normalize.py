@@ -1522,6 +1522,9 @@ class IndicNormalizerFactory(object):
             |language: language code
             |remove_nuktas: boolean, should the normalizer remove nukta characters 
         """
+        if language in langinfo.ISO639_v2_TO_v1:
+            language = langinfo.ISO639_v2_TO_v1[language]
+
         normalizer=None
         if language in ['hi','mr','kK','ne','sd_IN']:
             normalizer=DevanagariNormalizer(lang=language, **kwargs)

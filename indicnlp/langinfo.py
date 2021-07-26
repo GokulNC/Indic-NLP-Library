@@ -42,6 +42,32 @@ URDU_RANGES=[
                 [0xfe70,0xfeff], 
             ]
 
+ISO639_v2_TO_v1 = {
+    'asm': 'as',
+    'ben': 'bn',
+    'guj': 'gu',
+    'hin': 'hi',
+    'kan': 'kn',
+    'kas': 'ks',
+    'mar': 'mr',
+    'mal': 'ml',
+    'nep': 'ne',
+    'npi': 'ne', # v3
+    'ori': 'or',
+    'ory': 'or', # v3
+    'pan': 'pa', # Warning: Do not add pnb
+    'pli': 'pi',
+    'san': 'sa',
+    'sin': 'si',
+    'snd': 'sd',
+    'tam': 'ta',
+    'tel': 'te',
+    'urd': 'ur',
+
+    # Misc
+    'eng': 'en',
+}
+
 COORDINATED_RANGE_START_INCLUSIVE=0
 COORDINATED_RANGE_END_INCLUSIVE=0x6f
 
