@@ -1543,7 +1543,7 @@ class IndicNormalizerFactory(object):
             language = langinfo.ISO639_v2_TO_v1[language]
 
         normalizer=None
-        if language in ['hi','mr','kK','ne','sd_IN']:
+        if language in ['hi','mr','kK','ne','sd_IN','awa','bho','mag','mai']:
             normalizer=DevanagariNormalizer(lang=language, **kwargs)
         elif language in ['sa']:
             normalizer=SanskritNormalizer(lang=language, **kwargs)
@@ -1561,9 +1561,7 @@ class IndicNormalizerFactory(object):
             normalizer=GurmukhiNormalizer(lang=language, **kwargs)
         elif language in ['gu']:
             normalizer=GujaratiNormalizer(lang=language, **kwargs)
-        elif language in ['bn']:
-            normalizer=BengaliNormalizer(lang=language, **kwargs)
-        elif language in ['as']:
+        elif language in ['bn','as','bpy']:
             normalizer=BengaliNormalizer(lang=language, **kwargs)
         elif language in ['or']:
             normalizer=OriyaNormalizer(lang=language, **kwargs)
@@ -1588,10 +1586,11 @@ class IndicNormalizerFactory(object):
         """
         Is the language supported?
         """
-        if language in ['hi','mr','sa','kK','ne','sd_IN','ks_IN',
+        if language in ['hi','mr','kK','ne','sd_IN','awa','bho','mag','mai',
+                        'sa','ks_IN',
                         'pa',
                         'gu',
-                        'bn','as',
+                        'bn','as','bpy',
                         'or',
                         'ml',
                         'kn',

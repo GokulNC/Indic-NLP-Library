@@ -24,16 +24,21 @@ SCRIPT_RANGES={
                  'kK':[0x0900,0x097f] ,   
                  'sa':[0x0900,0x097f] ,   
                  'ne':[0x0900,0x097f] ,   
+                 'awa':[0x0900,0x097f] ,   
+                 'bho':[0x0900,0x097f] ,   
+                 'mag':[0x0900,0x097f] ,   
+                 'mai':[0x0900,0x097f] ,   
                  'sd_IN':[0x0900,0x097f] ,  
                  'ks_IN':[0x0900,0x097f] ,   
                  'bn':[0x0980,0x09ff] ,  
                  'as':[0x0980,0x09ff] ,  
+                 'bpy':[0x0980,0x09ff] ,  
               }
 
 DRAVIDIAN_LANGUAGES=['ta', 'te', 'kn', 'ml',]
-IE_LANGUAGES=['hi', 'mr', 'kK', 'sa', 'ne', 'sd_IN', 'ks_IN', 'bn', 'as', 'pa', 'gu', 'or', 'si', 'pi_LK']
-PERSO_ARABIC_LANGUAGES=['ks', 'pnb', 'ur'] # Does not denote family name, but rather script name
-DANDA_DELIM_LANGUAGES=['as','bn','hi','ne','or','pa','sa','sd_IN','ks_IN']
+IE_LANGUAGES=['hi', 'mr', 'kK', 'sa', 'ne', 'awa','bho','mag','mai', 'sd_IN', 'ks_IN', 'bn', 'as', 'bpy', 'pa', 'gu', 'or', 'si', 'pi_LK']
+PERSO_ARABIC_LANGUAGES=['ks', 'pnb', 'skr', 'ur'] # Does not denote family name, but rather script name
+DANDA_DELIM_LANGUAGES=['as','bn','bpy','hi','ne','or','pa','sa','sd_IN','ks_IN','awa','bho','mag','mai']
 
 URDU_RANGES=[
                 [0x0600,0x06ff], 
