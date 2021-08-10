@@ -365,8 +365,10 @@ class DevanagariNormalizer(BaseNormalizer):
     NUKTA='\u093C' 
 
     def __init__(self,lang='hi',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
-            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False):
+            do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False,
+            do_implosive_consonants_to_germination=False):
         super(DevanagariNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
+        self.do_implosive_consonants_to_germination=do_implosive_consonants_to_germination
 
     def _normalize_vowels(self,text):
         # Two-part vowels
@@ -375,6 +377,12 @@ class DevanagariNormalizer(BaseNormalizer):
         text=text.replace("\u093e\u0946","\u094a") # ा + ॆ ->  ॊ 
         text=text.replace("\u093e\u0947","\u094b") # ा + े ->  ो 
         text=text.replace("\u093e\u0948","\u094c") # ा + ै ->  ौ 
+
+        if self.do_implosive_consonants_to_germination:
+            text=text.replace('\u097b','\u0917\u094d\u0917') # ॻ -> ग्ग 
+            text=text.replace('\u097c','\u091c\u094d\u091c') # ॼ -> ज्ज 
+            text=text.replace('\u097e','\u0921\u094d\u0921') # ॾ -> ड्ड 
+            text=text.replace('\u097f','\u092c\u094d\u092c') # ॿ -> ब्ब 
 
         # # chandra a replacement for Marathi
         # text=text.replace('\u0972','\u090f')
@@ -473,9 +481,10 @@ class KashmiriDevanagariNormalizer(DevanagariNormalizer):
 
     def __init__(self,lang='ks_IN',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
             do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False,
+            do_implosive_consonants_to_germination=False,
             do_convert_1995_to_2002_orthography=True,do_convert_vowels_with_apostrophe_to_short=False,
             do_convert_2002_to_2009_orthography=True):
-        super(KashmiriDevanagariNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
+        super(KashmiriDevanagariNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga,do_implosive_consonants_to_germination)
         if remove_nuktas:
             print("WARNING: Removing nuqtas in Kashmiri is not recommended. Proceed with caution.")
         self.do_convert_1995_to_2002_orthography=do_convert_1995_to_2002_orthography
@@ -536,8 +545,9 @@ class SanskritNormalizer(DevanagariNormalizer):
 
     def __init__(self,lang='sa',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
             do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=True,do_colon_to_visarga=True,
+            do_implosive_consonants_to_germination=False,
             do_drop_accent=True,do_split_sandhi=False,do_cache_sandhi=True):
-        super(SanskritNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
+        super(SanskritNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga,do_implosive_consonants_to_germination)
         self.do_drop_accent = do_drop_accent
         self.do_split_sandhi = do_split_sandhi
         if self.do_split_sandhi:
