@@ -943,9 +943,10 @@ class TamilNormalizer(BaseNormalizer):
 
     def __init__(self,lang='ta',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
             do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False,
-            normalize_grantha=False):
+            normalize_grantha=False,do_convert_to_reformed_vowels=False):
         super(TamilNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
         self.normalize_grantha = normalize_grantha
+        self.do_convert_to_reformed_vowels=do_convert_to_reformed_vowels
 
     def normalize(self,text): 
 
@@ -965,9 +966,8 @@ class TamilNormalizer(BaseNormalizer):
 
         if self.remove_nuktas:
             # In Tamil, it's equivalent to removing translingual ஃ
-            text=text.replace('\u0b83\u0b9c', '\u0b9c') # ஃஜ (za)
-            text=text.replace('\u0b83\u0b95', '\u0b95') # ஃக (qa)
-            text=text.replace('\u0b83\u0baa', '\u0baa') # ஃப (fa)
+            # like ஃஜ (za), ஃக (qa), ஃப (fa), ஃவ (wa), ஃஸ (xa), ஃஶ (zha)
+            text=re.sub('\u0b83([\u0b95-\u0bb9])','\\1',text)
             # In other places, ஃ denotes a voiceless uvular fricative or visarga if final
 
         if self.normalize_grantha:
@@ -979,6 +979,13 @@ class TamilNormalizer(BaseNormalizer):
             text=text.replace('\u0bb8','\u0b9a') # ஸ -> ச
             text=text.replace('\u0bb9','\u0b95') # ஹ -> க
             text=text.replace('\u0b82','\u0bae\u0bcd') # ஂ -> ம்
+        
+        if self.do_convert_to_reformed_vowels:
+            # Independent vowels
+            text=text.replace('\u0b90','\u0b85\u0baf\u0bcd') # ஐ -> அய் 
+            text=text.replace('\u0b94','\u0b85\u0bb5\u0bcd') # ஔ -> அவ் 
+
+            ## TODO: Verify if not necessary for dependent vowels
         
         # # Correct Indic visarge. Does not apply to Tamil, since visarga is ஃ
         # if self.do_colon_to_visarga:
