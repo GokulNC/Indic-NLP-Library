@@ -371,18 +371,54 @@ class DevanagariNormalizer(BaseNormalizer):
         self.do_implosive_consonants_to_germination=do_implosive_consonants_to_germination
 
     def _normalize_vowels(self,text):
-        # Two-part vowels
+        ''''
+        Although standard fonts do not render many of the following illegal combinations,
+        some fonts do not follow the same. Hence fix all combinations
+        '''
+
+        # 2-part independent vowels
+        text=text.replace("\u0905\u093e","\u0906") # अ + ा -> आ
+        text=text.replace("\u0905\u0946","\u0904") # अ + ॆ -> ऄ
+        text=text.replace("\u0905\u093a","\u0973") # अ + ऺ -> ॳ
+        text=text.replace("\u0905\u0956","\u0976") # अ +  ॖ -> ॶ
+        text=text.replace("\u090f\u0946","\u090e") # ए + ॆ -> ऎ
+        text=text.replace("\u090f\u0947","\u0910") # ए + े -> ऐ
+
+        # 2-part dependent vowels
+        text=text.replace("\u0945\u0902","\u0901") # ॅ + ं -> ँ 
         text=text.replace("\u093e\u093a","\u093b") # ा + ऺ ->  ऻ 
         text=text.replace("\u093e\u0945","\u0949") # ा + ॅ ->  ॉ 
         text=text.replace("\u093e\u0946","\u094a") # ा + ॆ ->  ॊ 
         text=text.replace("\u093e\u0947","\u094b") # ा + े ->  ो 
         text=text.replace("\u093e\u0948","\u094c") # ा + ै ->  ौ 
+        text=text.replace("\u094a\u0946","\u094f") # ॊ + ॆ -> ॏ 
+        text=text.replace("\u0956\u0956","\u0957") # ॖ +  ॖ ->  ॗ 
 
-        if self.do_implosive_consonants_to_germination:
-            text=text.replace('\u097b','\u0917\u094d\u0917') # ॻ -> ग्ग 
-            text=text.replace('\u097c','\u091c\u094d\u091c') # ॼ -> ज्ज 
-            text=text.replace('\u097e','\u0921\u094d\u0921') # ॾ -> ड्ड 
-            text=text.replace('\u097f','\u092c\u094d\u092c') # ॿ -> ब्ब 
+        # 3-part independent vowels
+        text=text.replace("\u0905\u094a","\u0912") # अ + ॊ -> ऒ
+        text=text.replace("\u0905\u094b","\u0913") # अ + ो -> ओ
+        text=text.replace("\u0905\u094c","\u0914") # अ +  ौ -> औ
+        text=text.replace("\u0905\u093b","\u0974") # अ + ऻ  -> ॴ
+        text=text.replace("\u0905\u094f","\u0975") # अ + ॏ -> ॵ
+        text=text.replace("\u0905\u0957","\u0977") # अ +  ॗ -> ॷ
+
+        text=text.replace("\u0906\u0946","\u0912") # आ + ॆ -> ऒ
+        text=text.replace("\u0906\u0947","\u0913") # आ + े -> ओ
+        text=text.replace("\u0906\u0948","\u0914") # आ + ै -> औ
+        text=text.replace("\u0906\u093a","\u0974") # आ + ऺ -> ॴ
+        text=text.replace("\u0912\u0946","\u0975") # ऒ + ॆ -> ॵ
+
+        # text=text.replace("\u090a\u0901","\u0950") # ऊ + ँ -> ॐ
+
+        # Latin independent vowel fixes
+
+        text=text.replace("\u090d\u0902","\u090f\u0901") # ऍ + ं -> ए + ँ 
+        text=text.replace("\u0911\u0902","\u0906\u0901") # ऑ + ं -> आ + ँ 
+        text=text.replace("\u0972\u0902","\u0905\u0901") # ॲ + ं -> अ + ँ  
+
+        text=text.replace("\u090f\u0945","\u090d") # ए + ॅ -> ऍ
+        text=text.replace("\u0906\u0945","\u0911") # आ + ॅ -> ऑ
+        text=text.replace("\u0905\u0945","\u0972") # अ + ॅ -> ॲ
 
         # # chandra a replacement for Marathi
         # text=text.replace('\u0972','\u090f')
@@ -438,6 +474,12 @@ class DevanagariNormalizer(BaseNormalizer):
                 text=text.replace('\u0922'+DevanagariNormalizer.NUKTA, '\u095D')
                 text=text.replace('\u092B'+DevanagariNormalizer.NUKTA, '\u095E')
                 text=text.replace('\u092F'+DevanagariNormalizer.NUKTA, '\u095F')
+
+        if self.do_implosive_consonants_to_germination:
+            text=text.replace('\u097b','\u0917\u094d\u0917') # ॻ -> ग्ग 
+            text=text.replace('\u097c','\u091c\u094d\u091c') # ॼ -> ज्ज 
+            text=text.replace('\u097e','\u0921\u094d\u0921') # ॾ -> ड्ड 
+            text=text.replace('\u097f','\u092c\u094d\u092c') # ॿ -> ब्ब 
 
         # replace pipe character for poorna virama 
         text=text.replace('\u007c','\u0964')
@@ -564,6 +606,16 @@ class SanskritNormalizer(DevanagariNormalizer):
     def normalize(self,text):
         # common normalization for Devanagari 
         text=super(SanskritNormalizer,self).normalize(text)
+
+        text=text.replace("\u0964\u0964","\u0965") # ।। -> ॥
+
+        # Fix Vedic vowels
+        text=text.replace("\u0943\u0943","\u0944") # ृ +  ृ ->  ॄ
+        text=text.replace("\u0932\u0943","\u090c") # लृ -> ऌ
+        text=text.replace("\u0932\u0944","\u0961") # लॄ -> ॡ
+        text=text.replace("\u090c\u0943","\u0961") # ऌृ -> ॡ
+        text=text.replace("\u090b\u0943","\u0960") # ऋृ -> ॠ
+
         if self.do_drop_accent:
             # Drop Sandhi-bridge-accent
             text = re.sub('[\u0967\u0969][\u0951\u0952]', '', text)
@@ -986,7 +1038,7 @@ class TamilNormalizer(BaseNormalizer):
             text=text.replace('\u0b94','\u0b85\u0bb5\u0bcd') # ஔ -> அவ் 
 
             ## TODO: Verify if not necessary for dependent vowels
-        
+
         # # Correct Indic visarge. Does not apply to Tamil, since visarga is ஃ
         # if self.do_colon_to_visarga:
         #     text=re.sub(r'([\u0b80-\u0bff]):','\\1\u0b83',text)
