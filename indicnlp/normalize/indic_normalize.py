@@ -1393,6 +1393,33 @@ class SinhalaNormalizer(BaseNormalizer):
             text=re.sub(r'([\u0d80-\u0dff]):','\\1\u0d83',text)
         return text
 
+class DhivehiNormalizer(NormalizerI):
+    '''
+    Assumes Thaana script for Maldivian. For Mahl, use Devanagari Normalizer.
+    '''
+    def __init__(self, lang='dv', add_schwa_to_consonants_without_diacritics=False):
+        self.lang = lang
+        self.add_schwa_to_consonants_without_diacritics = add_schwa_to_consonants_without_diacritics
+    
+    def normalize(self, text):
+        text = self._normalize_punctuations(text)
+
+        if self.add_schwa_to_consonants_without_diacritics:
+            # Add fatḥah for all non-nasal consonants without any diacritic
+            text = re.sub("([\u0780\u0781\u0783-\u07a5\u07b1])[^\u07a6-\u07b0]", "\\1\u07a6", text)
+        else:
+            # Fix alif and aïnu (without diacritic) to 'a'
+            text = re.sub("([\u0787\u07a2])[^\u07a6-\u07b0]", "\\1\u07a6", text)
+            # Add sukūn for all non-nasal consonants without any diacritic
+            text = re.sub("([\u0780\u0781\u0783-\u07a5\u07b1])[^\u07a6-\u07b0]", "\\1\u07b0", text)
+
+        # Normalize ﷲ
+        text = re.sub("([\u07a6-\u07b0])\ufdf2", "\\1އްލާހް", text)
+        text = text.replace("ﷲ", "އައްލާހް")
+
+        return text
+
+
 class UrduShahmukhiNormalizer(NormalizerI):
     '''Uses UrduHack library.
     https://docs.urduhack.com/en/stable/_modules/urduhack/normalization/character.html#normalize
@@ -1627,6 +1654,8 @@ class IndicNormalizerFactory(object):
             normalizer=TeluguNormalizer(lang=language, **kwargs)
         elif language in ['si','pi_LK']:
             normalizer=SinhalaNormalizer(lang=language, **kwargs)
+        elif language in ['dv']:
+            normalizer=DhivehiNormalizer(lang=language, **kwargs)
         elif language in ['en']:
             normalizer = EnglishNormalizer(lang=language, **kwargs)
         else:    
@@ -1651,6 +1680,7 @@ class IndicNormalizerFactory(object):
                         'si','pi_LK',
                         'ur','pnb','sd','skr','ks',
                         'ar','fa',
+                        'dv',
                         'en']:
             return True
         else:

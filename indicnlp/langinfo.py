@@ -33,6 +33,7 @@ SCRIPT_RANGES={
                  'bn':[0x0980,0x09ff] ,  
                  'as':[0x0980,0x09ff] ,  
                  'bpy':[0x0980,0x09ff] ,  
+                 'dv': [0x0780,0x07bf],
               }
 
 DRAVIDIAN_LANGUAGES=['ta', 'te', 'kn', 'ml',]
@@ -50,6 +51,7 @@ URDU_RANGES=[
 ISO639_v2_TO_v1 = {
     'asm': 'as',
     'ben': 'bn',
+    'div': 'dv',
     'guj': 'gu',
     'hin': 'hi',
     'kan': 'kn',
