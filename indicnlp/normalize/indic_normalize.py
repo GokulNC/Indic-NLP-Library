@@ -1054,19 +1054,32 @@ class TeluguNormalizer(BaseNormalizer):
     * canonicalize two-part dependent vowel signs
     * replace colon ':' by visarga if the colon follows a charcter in this script 
     """
+    
+    NUKTA='\u0C3C'
 
     def __init__(self,lang='te',remove_nuktas=False,decompose_nuktas=False,nasals_mode='do_nothing',
-                do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False):
+                do_normalize_chandras=False,do_normalize_vowel_ending=False,do_normalize_numerals=False,convert_numerals_to_native=False,do_colon_to_visarga=False,
+                do_normalize_nakara_pollu=True):
         super(TeluguNormalizer,self).__init__(lang,remove_nuktas,decompose_nuktas,nasals_mode,do_normalize_chandras,do_normalize_vowel_ending,do_normalize_numerals,convert_numerals_to_native,do_colon_to_visarga)
+        self.do_normalize_nakara_pollu=do_normalize_nakara_pollu
 
     def normalize(self,text): 
 
         # common normalization for Indic scripts 
         text=super(TeluguNormalizer,self).normalize(text)
+        
+        if self.decompose_nuktas:
+            # Standardize legacy tsa and dza/za with nuqta instead of numeral 2
+            text=text.replace('\u0c58','\u0c1a\u0c3c') # ౘ -> చ఼ 
+            text=text.replace('\u0c59','\u0c1c\u0c3c') # ౙ -> జ఼ 
 
         if self.remove_nuktas:
+            text=text.replace(TeluguNormalizer.NUKTA,'')
             text=text.replace('\u0c58','\u0c1a') # ౘ -> చ 
             text=text.replace('\u0c59','\u0c1c') # ౙ -> జ 
+        
+        if self.do_normalize_nakara_pollu:
+            text=text.replace('\u0c5d','\u0c28\u0c4d') # ౝ -> న్ 
 
         # replace the poorna virama codes specific to script 
         # with generic Indic script codes
