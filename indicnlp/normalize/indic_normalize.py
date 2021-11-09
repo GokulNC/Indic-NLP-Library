@@ -1015,7 +1015,14 @@ class TamilNormalizer(BaseNormalizer):
         text=text.replace('\u0bc6\u0bbe','\u0bca')
         text=text.replace('\u0bc7\u0bbe','\u0bcb')
         text=text.replace('\u0bc6\u0bd7','\u0bcc')
+        
+        # ா் -> ர் (Example: வாடிக்கையாளா் -> வாடிக்கையாளர்)
+        text=text.replace('\u0bbe\u0bcd','\u0bb0\u0bcd')
+        text=text.replace('\u0bca\u0bcd','\u0bc6\u0bb0\u0bcd')
+        text=text.replace('\u0bcb\u0bcd','\u0bc7\u0bb0\u0bcd')
 
+        # TODO: Tamil digits ௧, ௫, ௭ can deceifully be used in-place of original letters which are same-looking. Normalize somehow?
+        
         if self.remove_nuktas:
             # In Tamil, it's equivalent to removing translingual ஃ
             # like ஃஜ (za), ஃக (qa), ஃப (fa), ஃவ (wa), ஃஸ (xa), ஃஶ (zha)
