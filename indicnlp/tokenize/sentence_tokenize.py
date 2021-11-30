@@ -275,12 +275,18 @@ def sentence_split(text,lang,delim_pat='auto'): ## New signature
         end=p1+1
         s= text[begin:end].strip()
         if len(s)>0:
-            cand_sentences.append(s)
+            if len(s) == 1:
+                cand_sentences[-1] += s
+            else:
+                cand_sentences.append(s)
         begin=p1+1
 
     s= text[begin:].strip()
     if len(s)>0: # Remaining chunk as new sentence
-        cand_sentences.append(s)
+        if len(s) == 1:
+            cand_sentences[-1] += s
+        else:
+            cand_sentences.append(s)
     
     cand_sentences_new = []
     for sentence in cand_sentences:
