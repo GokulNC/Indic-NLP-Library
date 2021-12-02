@@ -1247,6 +1247,13 @@ class MalayalamNormalizer(BaseNormalizer):
         text=text.replace('\u0d2e\u0d4d\u200d','\u0d54')
         text=text.replace('\u0d2f\u0d4d\u200d','\u0d55')
         text=text.replace('\u0d34\u0d4d\u200d','\u0d56')
+        
+        # Malayalam digits 4 & 9 look same as chillus
+        if not re.findall('[\u0d66-\u0d69\u0d6b-\u0d6e]', text):
+            # Heuristic: If no other mallu digits are present, safely assume those are chillus
+            text=text.replace('\u0d6a','\u0d7c')
+            text=text.replace('\u0d6f','\u0d7b')
+        
         # Dot reph to chillu r
         text=text.replace('\u0d4e','\u0d7c')
 
@@ -1277,9 +1284,12 @@ class MalayalamNormalizer(BaseNormalizer):
         text=text.replace('\u0d65','\u0965')
 
         # dependent vowels
-        text=text.replace('\u0d46\u0d3e','\u0d4a')
-        text=text.replace('\u0d47\u0d3e','\u0d4b')
-
+        text=text.replace('\u0d46\u0d3e','\u0d4a') # o
+        text=text.replace('\u0d47\u0d3e','\u0d4b') # O
+        
+        # ai form
+        text=text.replace('\u0d46\u0d46','\u0d48')
+        
         # au forms
         text=text.replace('\u0d46\u0d57','\u0d4c')
         text=text.replace('\u0d57','\u0d4c')
