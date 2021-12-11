@@ -1020,6 +1020,10 @@ class TamilNormalizer(BaseNormalizer):
         text=text.replace('\u0bbe\u0bcd','\u0bb0\u0bcd')
         text=text.replace('\u0bca\u0bcd','\u0bc6\u0bb0\u0bcd')
         text=text.replace('\u0bcb\u0bcd','\u0bc7\u0bb0\u0bcd')
+        
+        # "Shri" can be written with two different initial letters: ஶ (ie. ஶ்ரீ ʃɾī) or ஸ (ie. ஸ்ரீ s͓ɾī). The result looks identical.
+        # Since 2005, the Unicode Consortium has recommended use of the former, but both are still in wide circulation.
+        text=text.replace('\u0bb8\u0bcd\u0bb0\u0bc0','\u0bb6\u0bcd\u0bb0\u0bc0')
 
         # TODO: Tamil digits ௧, ௫, ௭ can deceifully be used in-place of original letters which are same-looking. Normalize somehow?
         
