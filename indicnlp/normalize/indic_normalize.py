@@ -1025,7 +1025,15 @@ class TamilNormalizer(BaseNormalizer):
         # Since 2005, the Unicode Consortium has recommended use of the former, but both are still in wide circulation.
         text=text.replace('\u0bb8\u0bcd\u0bb0\u0bc0','\u0bb6\u0bcd\u0bb0\u0bc0')
 
-        # TODO: Tamil digits ௧, ௫, ௭ can deceifully be used in-place of original letters which are same-looking. Normalize somehow?
+        # Tamil digits ௧ (1), ௫ (5), ௭ (7) look identical to actual letters
+        if not re.search('[\u0be8-\u0bea\u0bec\u0bee-\u0bef]', text):
+            # Heuristc: If other digits are not there, assume error
+            text=text.replace('\u0be7','\u0b95')
+            text=text.replace('\u0beb','\u0bb0\u0bc1')
+            text=text.replace('\u0bed','\u0b8e')
+        text=text.replace('\u0be6','0')
+        
+        text=text.replace('\u0bf9','\u0bb0\u0bc2') # ௹ -> ரூ (Rupee sign)
         
         if self.remove_nuktas:
             # In Tamil, it's equivalent to removing translingual ஃ
@@ -1253,7 +1261,7 @@ class MalayalamNormalizer(BaseNormalizer):
         text=text.replace('\u0d34\u0d4d\u200d','\u0d56')
         
         # Malayalam digits 4 & 9 look same as chillus
-        if not re.findall('[\u0d66-\u0d69\u0d6b-\u0d6e]', text):
+        if not re.search('[\u0d66-\u0d69\u0d6b-\u0d6e]', text):
             # Heuristic: If no other mallu digits are present, safely assume those are chillus
             text=text.replace('\u0d6a','\u0d7c')
             text=text.replace('\u0d6f','\u0d7b')
