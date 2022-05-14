@@ -1618,12 +1618,13 @@ class EnglishNormalizer(NormalizerI):
     https://github.com/jfilter/clean-text/blob/90946c2cc8650929fe6487b70236b39348085fc8/cleantext/clean.py#L199
     '''
 
-    def __init__(self, lang, lowercase=False, ascii_only=True, fix_unicode=False, strip_lines=False, **kwargs):
+    def __init__(self, lang, lowercase=False, ascii_only=True, fix_unicode=False, strip_lines=False, auto_capitalize=False, **kwargs):
         self.lang = lang
         self.lowercase = lowercase
         self.ascii = ascii_only
         self.fix_unicode = fix_unicode
         self.strip_lines = strip_lines
+        self.auto_capitalize = auto_capitalize
         self.kwargs = kwargs
 
         import cleantext
@@ -1639,8 +1640,9 @@ class EnglishNormalizer(NormalizerI):
     def normalize(self, text):
         # Remove space between word and punctuation. https://stackoverflow.com/a/18878970
         text = re.sub(r'\s([?.!"](?:\s|$))', r'\1', text)
-        # text = text.capitalize()
-        text = self.capitalize(text)
+        if self.auto_capitalize:
+            # text = text.capitalize()
+            text = self.capitalize(text)
         return self._normalize(text, lower=self.lowercase, to_ascii=self.ascii, fix_unicode=self.fix_unicode,
                      strip_lines=self.strip_lines, **self.kwargs)
 
