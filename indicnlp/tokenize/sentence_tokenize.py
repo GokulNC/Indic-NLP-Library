@@ -272,10 +272,12 @@ def sentence_split(text,lang,delim_pat='auto'): ## New signature
             if is_quotes_open:
                 continue
 
-        end=p1+1
-        s= text[begin:end].strip()
+        end = p1 + 1
+        s = text[begin:end].strip()
         if len(s)>0:
             if len(s) == 1:
+                if not cand_sentences:
+                    cand_sentences.append('')
                 cand_sentences[-1] += s
             else:
                 cand_sentences.append(s)
