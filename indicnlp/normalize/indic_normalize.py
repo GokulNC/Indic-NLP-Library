@@ -1613,6 +1613,8 @@ class NormalityEnglishNormalizer(NormalizerI):
         return self._normalize(text, lowercase=self.lowercase, ascii=self.ascii, **self.kwargs)
 
 
+DEVANAGARI_RUPEE_REGEX = re.compile("(रु)([\s\.]?\d+)")
+
 class EnglishNormalizer(NormalizerI):
     '''Uses Clean-Text Library
     https://github.com/jfilter/clean-text/blob/90946c2cc8650929fe6487b70236b39348085fc8/cleantext/clean.py#L199
@@ -1643,6 +1645,11 @@ class EnglishNormalizer(NormalizerI):
         if self.auto_capitalize:
             # text = text.capitalize()
             text = self.capitalize(text)
+        
+        # Normalize special characters
+        text = DEVANAGARI_RUPEE_REGEX.sub("₹\\2", text)
+        
+        # Final normalization
         return self._normalize(text, lower=self.lowercase, to_ascii=self.ascii, fix_unicode=self.fix_unicode,
                      strip_lines=self.strip_lines, **self.kwargs)
 
